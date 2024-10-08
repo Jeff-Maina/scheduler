@@ -21,6 +21,7 @@ const Calendar = () => {
         initialEvents={[
           { title: "nice event", start: new Date(), resourceId: "a" },
         ]}
+        allDayContent
       />
     </div>
   );
