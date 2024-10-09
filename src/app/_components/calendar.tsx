@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { motion } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 import {
   Popover,
   PopoverContent,
@@ -24,7 +24,7 @@ import {
   isSameDay,
   parseISO,
 } from "date-fns";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TooltipWrapper from "./tooltip-wrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -72,6 +72,34 @@ const Scheduler = () => {
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   };
 
+  // drag logic
+  const [isAnItemBeingDragged, setItemBeingDragged] = useState(false);
+  const [draggedCardColor, setDraggedCardColor] = useState<string>("");
+
+  const setBeingDragged = (value: boolean) => {
+    setItemBeingDragged(value);
+  };
+
+  const [hoveredDate, setHoveredDate] = useState<Date | undefined>();
+
+  function formatDateString(dateString: Date | undefined) {
+    if (!dateString) return;
+
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+  const setNewDate = (activity: TClassProps) => {
+    activity.startDateTime = formatDateString(hoveredDate) || "";
+  };
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <div className="max-w-[90rem] w-full flex flex-col min-h-[70vh] border border-neutral-200 rounded-md">
       <div className="w-full h-12 shrink-0 border-b border-neutral-200 flex items-center p-4">
@@ -82,7 +110,7 @@ const Scheduler = () => {
           setDate={setDate}
         />
       </div>
-      <div className="h-full w-full p-4">
+      <div ref={containerRef} className="h-full w-full p-4">
         <div className="w-full font-medium text-neutral-500 text-sm grid grid-cols-7">
           <div className="p-4 rounded-md w-full">Sun</div>
           <div className="p-4 rounded-md w-full">Mon</div>
@@ -93,37 +121,58 @@ const Scheduler = () => {
           <div className="p-4 rounded-md w-full">Sat</div>
         </div>
         <div className="w-full h-full grid grid-cols-7 border-b border-l">
-          {days.map((day, index) => (
-            <div
-              key={index}
-              className={cn(
-                " w-full h-36 p-2 border-t border-r",
-                index === 0 && colStartClasses[getDay(day)],
-                !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
-                isToday(day) &&
-                  "bg-neutral-100 border-neutral-400  border-x border-y"
-              )}
-            >
-              <time
-                dateTime={format(day, "yyyy-MM-dd")}
-                className="text-xs shrink-0 font-bold text-neutral-500"
+          {days.map((day, index) => {
+            const isItemDraggedAndDayHovered =
+              isAnItemBeingDragged && isSameDay(day, hoveredDate as Date);
+            return (
+              <div
+                key={index}
+                onMouseEnter={() => setHoveredDate(day)}
+                onMouseLeave={() => setHoveredDate(undefined)}
+                className={cn(
+                  " w-full h-36 p-2 border-t border-r",
+                  index === 0 && colStartClasses[getDay(day)],
+                  !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
+                  isToday(day) &&
+                    "bg-neutral-100 border-neutral-300  border-x border-y",
+                  isItemDraggedAndDayHovered && "border-x border-y"
+                )}
+                style={{
+                  backgroundColor: isItemDraggedAndDayHovered
+                    ? `hsl(${draggedCardColor}, 10%)`
+                    : "",
+                  borderColor: isItemDraggedAndDayHovered
+                    ? `hsl(${draggedCardColor})`
+                    : "",
+                }}
               >
-                {format(day, "d")}
-              </time>
+                <time
+                  dateTime={format(day, "yyyy-MM-dd")}
+                  className="text-xs shrink-0 font-bold text-neutral-500"
+                >
+                  {format(day, "d")}
+                </time>
 
-              <div className="w-full h-28 pb-2 pr-3 overflow-visible">
-                {meetings.map((meeting, index) => {
-                  return (
-                    <>
-                      {isSameDay(parseISO(meeting.startDateTime), day) && (
-                        <MeetingCard meeting={meeting} key={index} />
-                      )}
-                    </>
-                  );
-                })}
+                <ScrollArea className="w-full h-28 pb-2 pr-3 ">
+                  {meetings.map((meeting, index) => {
+                    return (
+                      isSameDay(parseISO(meeting.startDateTime), day) && (
+                        <MeetingCard
+                          setDraggedCardColor={setDraggedCardColor}
+                          setBeingDragged={setBeingDragged}
+                          hoveredDate={hoveredDate}
+                          meeting={meeting}
+                          setNewDate={setNewDate}
+                          containerRef={containerRef}
+                          key={index}
+                        />
+                      )
+                    );
+                  })}
+                </ScrollArea>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -195,24 +244,57 @@ const CurrentDatePicker = ({
   );
 };
 
-const MeetingCard = ({ meeting }: { meeting: TClassProps }) => {
+type MeetingCardProps = {
+  meeting: TClassProps;
+  setBeingDragged: (value: boolean) => void;
+  setDraggedCardColor: Dispatch<SetStateAction<string>>;
+  setNewDate: (value: TClassProps) => void;
+  hoveredDate: Date | undefined;
+  containerRef: React.RefObject<HTMLDivElement>;
+};
+
+const MeetingCard = ({
+  meeting,
+  setBeingDragged,
+  setDraggedCardColor,
+  setNewDate,
+  hoveredDate,
+  containerRef,
+}: MeetingCardProps) => {
   const [isDragging, setIsDragging] = useState(false);
+
   return (
     <motion.div
       drag
       dragMomentum={false}
+      dragElastic={0}
       dragSnapToOrigin
+      dragConstraints={containerRef}
       dragTransition={{ bounceStiffness: 500, bounceDamping: 40 }}
-      onDragStart={() => setIsDragging(true)}
-      onDragEnd={() => setIsDragging(false)}
+      onDragStart={(event, info) => {
+        setDraggedCardColor(meeting.color);
+        setIsDragging(true);
+        setBeingDragged(true);
+      }}
+      onDragEnd={(event, info) => {
+        setDraggedCardColor("");
+        setIsDragging(false);
+        setBeingDragged(false);
+        if (hoveredDate) {
+          setNewDate(meeting);
+        }
+      }}
       style={{
         backgroundColor: `hsl(${meeting.color},20%)`,
+        pointerEvents: isDragging ? "none" : "auto",
+        position: isDragging ? "fixed" : "relative",
+        zIndex: isDragging ? 1000 : 0,
         borderColor: isDragging
           ? `hsl(${meeting.color})`
           : `hsl(${meeting.color},10%)`,
       }}
       className={cn(
-        "w-full text-left max-w-44 p-1 mb-1 border-2  rounded-md flex gap-1.5 items-stretch"
+        "w-full text-left max-w-44 p-1 mb-1 border-2 cursor-grab active:cursor-grabbing  rounded-md flex gap-1.5 items-stretch"
       )}
     >
       <div
@@ -229,7 +311,6 @@ const MeetingCard = ({ meeting }: { meeting: TClassProps }) => {
           className="text-xs font-semibold text- line-clamp-1"
         >
           {meeting.subject}
-          {isDragging.toString()}
         </p>
       </div>
     </motion.div>
