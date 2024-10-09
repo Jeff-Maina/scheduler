@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react"
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -17,6 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Analytics/>
       <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
