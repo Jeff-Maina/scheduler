@@ -30,6 +30,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import TooltipWrapper from "./tooltip-wrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { meetings } from "../_data/meetings";
+import NewEventModal from "./new-event-modal";
 
 // * data yo
 
@@ -111,100 +112,115 @@ const Scheduler = () => {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  return (
-    <div className="max-w-[90rem] w-full flex flex-col min-h-[70vh] border border-neutral-200 rounded-md">
-      <div className="w-full h-12 shrink-0 border-b border-neutral-200 flex items-center p-4">
-        <CurrentDatePicker
-          previousMonth={prevMonth}
-          nextMonth={nextMonth}
-          date={date}
-          setDate={setDate}
-        />
-      </div>
-      <div ref={containerRef} className="h-full w-full p-4">
-        <div className="w-full font-medium text-neutral-500 text-sm grid grid-cols-7">
-          <div className="p-4 rounded-md w-full">Sun</div>
-          <div className="p-4 rounded-md w-full">Mon</div>
-          <div className="p-4 rounded-md w-full">Tue</div>
-          <div className="p-4 rounded-md w-full">Wed</div>
-          <div className="p-4 rounded-md w-full">Thur</div>
-          <div className="p-4 rounded-md w-full">Fri</div>
-          <div className="p-4 rounded-md w-full">Sat</div>
-        </div>
-        <div className="w-full h-full grid grid-cols-7 border-b border-l">
-          {days.map((day, index) => {
-            const isItemDraggedAndDayHovered =
-              isAnItemBeingDragged && isSameDay(day, hoveredDate as Date);
-            return (
-              <div
-                key={index}
-                onMouseEnter={() =>
-                  !isAnItemBeingDragged ? null : setHoveredDate(day)
-                }
-                onMouseLeave={() => setHoveredDate(undefined)}
-                className={cn(
-                  " w-full h-36 p-2 border-t border-r",
-                  index === 0 && colStartClasses[getDay(day)],
-                  !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
-                  isToday(day) &&
-                    "bg-neutral-100 border-neutral-300  border-x border-y",
-                  isSameDay(day, date as Date) &&
-                    "border-neutral-900 bg-neutral-100 border-x border-y",
-                  isItemDraggedAndDayHovered &&
-                    "border-x border-y cursor-grabbing"
-                )}
-                style={{
-                  backgroundColor: isItemDraggedAndDayHovered
-                    ? `hsl(${draggedCardColor}, 10%)`
-                    : "",
-                  borderColor: isItemDraggedAndDayHovered
-                    ? `hsl(${draggedCardColor})`
-                    : "",
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  {" "}
-                  <time
-                    dateTime={format(day, "yyyy-MM-dd")}
-                    className="text-xs shrink-0 font-bold text-neutral-500"
-                  >
-                    {format(day, "d")}
-                  </time>
-                  <small className="uppercase font-bold text-neutral-500 text-xs">
-                    {" "}
-                    {isToday(day)
-                      ? " TODAY"
-                      : format(day, "d") === "1"
-                      ? format(day, "MMMM").slice(0, 3)
-                      : ""}
-                  </small>
-                </div>
+  // new event logic
 
-                <ScrollArea className="w-full h-28 pb-2 pt-1 overflow-y-auto ">
-                  {meetings.map((meeting, index, array) => {
-                    const meetingCount = meetings.filter(meeting => meeting.startDateTime === formatDateString(day)).length;
-                    return (
-                      isSameDay(parseISO(meeting.startDateTime), day) && (
-                        <MeetingCard
-                          setDraggedCardColor={setDraggedCardColor}
-                          setBeingDragged={setBeingDragged}
-                          hoveredDate={hoveredDate}
-                          meeting={meeting}
-                          setNewDate={setNewDate}
-                          containerRef={containerRef}
-                          meetingCount={meetingCount}
-                          key={index}
-                        />
-                      )
-                    );
-                  })}
-                </ScrollArea>
-              </div>
-            );
-          })}
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  return (
+    <>
+      <div className="max-w-[90rem] w-full flex flex-col min-h-[70vh] border border-neutral-200 rounded-md">
+        <div className="w-full h-12 shrink-0 border-b border-neutral-200 flex items-center p-4">
+          <CurrentDatePicker
+            previousMonth={prevMonth}
+            nextMonth={nextMonth}
+            date={date}
+            setDate={setDate}
+          />
+        </div>
+        <div ref={containerRef} className="h-full w-full p-4">
+          <div className="w-full font-medium text-neutral-500 text-sm grid grid-cols-7">
+            <div className="p-4 rounded-md w-full">Sun</div>
+            <div className="p-4 rounded-md w-full">Mon</div>
+            <div className="p-4 rounded-md w-full">Tue</div>
+            <div className="p-4 rounded-md w-full">Wed</div>
+            <div className="p-4 rounded-md w-full">Thur</div>
+            <div className="p-4 rounded-md w-full">Fri</div>
+            <div className="p-4 rounded-md w-full">Sat</div>
+          </div>
+          <div className="w-full h-full grid grid-cols-7 border-b border-l">
+            {days.map((day, index) => {
+              const isItemDraggedAndDayHovered =
+                isAnItemBeingDragged && isSameDay(day, hoveredDate as Date);
+              return (
+                <div
+                  onDoubleClick={() => setModalOpen(true)}
+                  key={index}
+                  onMouseEnter={() =>
+                    !isAnItemBeingDragged ? null : setHoveredDate(day)
+                  }
+                  onMouseLeave={() => setHoveredDate(undefined)}
+                  className={cn(
+                    " w-full h-36 p-2 border-t border-r",
+                    index === 0 && colStartClasses[getDay(day)],
+                    !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
+                    isToday(day) &&
+                      "bg-neutral-100 border-neutral-300  border-x border-y",
+                    isSameDay(day, date as Date) &&
+                      "border-neutral-900 bg-neutral-100 border-x border-y",
+                    isItemDraggedAndDayHovered &&
+                      "border-x border-y cursor-grabbing"
+                  )}
+                  style={{
+                    backgroundColor: isItemDraggedAndDayHovered
+                      ? `hsl(${draggedCardColor}, 10%)`
+                      : "",
+                    borderColor: isItemDraggedAndDayHovered
+                      ? `hsl(${draggedCardColor})`
+                      : "",
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    {" "}
+                    <time
+                      dateTime={format(day, "yyyy-MM-dd")}
+                      className="text-xs shrink-0 font-bold text-neutral-500"
+                    >
+                      {format(day, "d")}
+                    </time>
+                    <small className="uppercase font-bold text-neutral-500 text-xs">
+                      {" "}
+                      {isToday(day)
+                        ? " TODAY"
+                        : format(day, "d") === "1"
+                        ? format(day, "MMMM").slice(0, 3)
+                        : ""}
+                    </small>
+                  </div>
+
+                  <ScrollArea className="w-full h-28 pb-2 pt-1 overflow-y-auto ">
+                    {meetings.map((meeting, index, array) => {
+                      const meetingCount = meetings.filter(
+                        (meeting) =>
+                          meeting.startDateTime === formatDateString(day)
+                      ).length;
+                      return (
+                        isSameDay(parseISO(meeting.startDateTime), day) && (
+                          <MeetingCard
+                            setDraggedCardColor={setDraggedCardColor}
+                            setBeingDragged={setBeingDragged}
+                            hoveredDate={hoveredDate}
+                            meeting={meeting}
+                            setNewDate={setNewDate}
+                            containerRef={containerRef}
+                            meetingCount={meetingCount}
+                            key={index}
+                          />
+                        )
+                      );
+                    })}
+                  </ScrollArea>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+
+      <NewEventModal
+        isModalOpen={isModalOpen}
+        toggleModal={() => setModalOpen(!isModalOpen)}
+      />
+    </>
   );
 };
 

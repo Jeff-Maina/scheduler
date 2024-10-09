@@ -361,3 +361,6 @@ export const meetings: TClassProps[] = [
         coach: "Sophia Lee",
     },
 ];
+
+
+export type { TClassProps }
