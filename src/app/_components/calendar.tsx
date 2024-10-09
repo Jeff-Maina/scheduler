@@ -27,103 +27,25 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TooltipWrapper from "./tooltip-wrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { meetings } from "../_data/meetings";
 
 // * data yo
 
-
-
-const meetings = [
-  {
-    subject: "Scrabble Practice",
-    description: "Weekly Scrabble practice with all players.",
-    startDateTime: "2024-09-12T10:00",
-    endDateTime: "2024-09-12T12:00",
-    coach: "John Doe",
-    recurring: true,
-    meetingMode: "in-person",
-    meetingType: "group",
-    invitedGuests: ["Jane Smith", "Albert Brown"],
-    location: "Room 12, Building A",
-    isAllDay: false,
-    color: "200, 50%, 50%",
-    eventActivity: "scrabble",
-  },
-  {
-    subject: "Chess Masterclass",
-    description: "Advanced tactics in chess for top players.",
-    startDateTime: "2024-09-15T15:00",
-    endDateTime: "2024-09-15T17:00",
-    coach: "Alice Lee",
-    recurring: false,
-    meetingMode: "online",
-    meetingType: "group",
-    invitedGuests: ["Mark Turner", "Samantha Green"],
-    location: null,
-    isAllDay: false,
-    color: "120, 60%, 40%",
-    eventActivity: "chess",
-  },
-  {
-    subject: "Coding Bootcamp Intro",
-    description: "Introduction to coding concepts for beginners.",
-    startDateTime: "2024-09-20T09:00",
-    endDateTime: "2024-09-20T12:00",
-    coach: "Emma Davis",
-    recurring: false,
-    meetingMode: "in-person",
-    meetingType: "group",
-    invitedGuests: ["Lucas Grey"],
-    location: "Room 15, Building B",
-    isAllDay: false,
-    color: "250, 50%, 45%",
-    eventActivity: "coding",
-  },
-  {
-    subject: "Chess Open Session",
-    description: "Open chess practice for all levels.",
-    startDateTime: "2024-10-01T13:00",
-    endDateTime: "2024-10-01T15:00",
-    coach: "Bob Carter",
-    recurring: true,
-    meetingMode: "in-person",
-    meetingType: "group",
-    invitedGuests: ["Sarah Johnson", "Chris Blue"],
-    location: "Room 8, Building C",
-    isAllDay: false,
-    color: "340, 40%, 60%",
-    eventActivity: "chess",
-  },
-  {
-    subject: "Custom Strategy Planning",
-    description: "Planning strategies for upcoming events.",
-    startDateTime: "2024-10-12T11:00",
-    endDateTime: "2024-10-12T13:00",
-    coach: "Michael Lee",
-    recurring: false,
-    meetingMode: "online",
-    meetingType: "individual",
-    invitedGuests: ["Robert Thompson"],
-    location: null,
-    isAllDay: false,
-    color: "30, 55%, 50%",
-    eventActivity: "custom",
-  },
-  {
-    subject: "Scrabble Tournament",
-    description: "Monthly Scrabble tournament for all players.",
-    startDateTime: "2024-10-18T14:00",
-    endDateTime: "2024-10-18T18:00",
-    coach: "Anna White",
-    recurring: false,
-    meetingMode: "in-person",
-    meetingType: "group",
-    invitedGuests: ["Emily Fox", "James Bond"],
-    location: "Room 7, Building A",
-    isAllDay: false,
-    color: "280, 50%, 45%",
-    eventActivity: "scrabble",
-  },
-];
+type TClassProps = {
+  subject: string;
+  description?: string;
+  startDateTime: string;
+  endDateTime: string;
+  coach: string;
+  recurring: boolean;
+  meetingMode: "in-person" | "online";
+  meetingType: "group" | "individual";
+  invitedGuests: string[];
+  location: string | null;
+  wholeDay: boolean;
+  color: string;
+  eventActivity: string;
+};
 
 const Scheduler = () => {
   let today = startOfToday();
@@ -139,12 +61,13 @@ const Scheduler = () => {
 
   const nextMonth = () => {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 });
-    console.log(firstDayNextMonth);
+    setDate(firstDayNextMonth);
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   };
 
   const prevMonth = () => {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 });
+    setDate(firstDayNextMonth);
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   };
 
@@ -177,7 +100,7 @@ const Scheduler = () => {
                 index === 0 && colStartClasses[getDay(day)],
                 !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
                 isToday(day) &&
-                  "bg-orange-100 border-orange-400  border-x border-y"
+                  "bg-neutral-100 border-neutral-400  border-x border-y"
               )}
             >
               <time
@@ -192,7 +115,7 @@ const Scheduler = () => {
                   return (
                     <>
                       {isSameDay(parseISO(meeting.startDateTime), day) && (
-                        <MeetingCard />
+                        <MeetingCard meeting={meeting} key={index} />
                       )}
                     </>
                   );
@@ -271,13 +194,28 @@ const CurrentDatePicker = ({
   );
 };
 
-const MeetingCard = ({}) => {
+const MeetingCard = ({ meeting }: { meeting: TClassProps }) => {
   return (
-    <button className="w-full text-left p-1 mb-1 bg-neutral-200 rounded-md flex gap-1.5 items-stretch">
-      <div className="w-1 shrink-0 bg-neutral-500 rounded-full"></div>
+    <button
+      style={{
+        backgroundColor: `hsl(${meeting.color},20%)`,
+      }}
+      className="w-full text-left p-1 mb-1  rounded-md flex gap-1.5 items-stretch"
+    >
+      <div
+        style={{
+          backgroundColor: `hsl(${meeting.color})`,
+        }}
+        className="w-1 shrink-0 bg-neutral-500 rounded-full"
+      ></div>
       <div className="min-h-fit flex items-center">
-        <p className="text-xs font-medium text-neutral-800 line-clamp-1">
-          Weekly Scrabble Practice
+        <p
+          style={{
+            color: `hsl(${meeting.color},200%)`,
+          }}
+          className="text-xs font-semibold text- line-clamp-1"
+        >
+          {meeting.subject}{" "}
         </p>
       </div>
     </button>
