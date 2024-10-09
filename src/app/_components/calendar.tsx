@@ -284,11 +284,14 @@ const MeetingCard = ({
           setNewDate(meeting);
         }
       }}
+      animate={{
+        rotate: isDragging ? 3 : 0,
+      }}
       style={{
         backgroundColor: `hsl(${meeting.color},20%)`,
         pointerEvents: isDragging ? "none" : "auto",
         position: isDragging ? "fixed" : "relative",
-        zIndex: isDragging ? 1000 : 0,
+        transform: isDragging ? "rotate(30deg)" : "rotate(0deg)",
         borderColor: isDragging
           ? `hsl(${meeting.color})`
           : `hsl(${meeting.color},10%)`,
