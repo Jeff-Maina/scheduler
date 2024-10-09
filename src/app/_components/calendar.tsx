@@ -23,6 +23,7 @@ import {
   isToday,
   isSameDay,
   parseISO,
+  getMonth,
 } from "date-fns";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -148,7 +149,7 @@ const Scheduler = () => {
                   isToday(day) &&
                     "bg-neutral-100 border-neutral-300  border-x border-y",
                   isSameDay(day, date as Date) &&
-                    "border-neutral-400 border-x border-y",
+                    "border-neutral-900 bg-neutral-100 border-x border-y",
                   isItemDraggedAndDayHovered &&
                     "border-x border-y cursor-grabbing"
                 )}
@@ -161,15 +162,27 @@ const Scheduler = () => {
                     : "",
                 }}
               >
-                <time
-                  dateTime={format(day, "yyyy-MM-dd")}
-                  className="text-xs shrink-0 font-bold text-neutral-500"
-                >
-                  {format(day, "d")}
-                </time>
+                <div className="flex items-center gap-2">
+                  {" "}
+                  <time
+                    dateTime={format(day, "yyyy-MM-dd")}
+                    className="text-xs shrink-0 font-bold text-neutral-500"
+                  >
+                    {format(day, "d")}
+                  </time>
+                  <small className="uppercase font-bold text-neutral-500 text-xs">
+                    {" "}
+                    {isToday(day)
+                      ? " TODAY"
+                      : format(day, "d") === "1"
+                      ? format(day, "MMMM").slice(0, 3)
+                      : ""}
+                  </small>
+                </div>
 
-                <ScrollArea className="w-full h-28 pb-2 pr-3 ">
-                  {meetings.map((meeting, index) => {
+                <ScrollArea className="w-full h-28 pb-2 pt-1 overflow-y-auto ">
+                  {meetings.map((meeting, index, array) => {
+                    const meetingCount = meetings.filter(meeting => meeting.startDateTime === formatDateString(day)).length;
                     return (
                       isSameDay(parseISO(meeting.startDateTime), day) && (
                         <MeetingCard
@@ -179,6 +192,7 @@ const Scheduler = () => {
                           meeting={meeting}
                           setNewDate={setNewDate}
                           containerRef={containerRef}
+                          meetingCount={meetingCount}
                           key={index}
                         />
                       )
@@ -285,6 +299,7 @@ type MeetingCardProps = {
   setNewDate: (value: TClassProps) => void;
   hoveredDate: Date | undefined;
   containerRef: React.RefObject<HTMLDivElement>;
+  meetingCount: number;
 };
 
 const MeetingCard = ({
@@ -294,6 +309,7 @@ const MeetingCard = ({
   setNewDate,
   hoveredDate,
   containerRef,
+  meetingCount,
 }: MeetingCardProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -349,21 +365,23 @@ const MeetingCard = ({
         >
           {meeting.subject}
         </p>
-        <p
-          style={{
-            color: `hsl(${meeting.color},200%)`,
-          }}
-          className="text-xs font-medium"
-        >
-          {" "}
-          <time dateTime={meeting.startDateTime}>
-            {format(meeting.startDateTime, "h:mm a")}
-          </time>{" "}
-          -{" "}
-          <time dateTime={meeting.startDateTime}>
-            {format(meeting.startDateTime, "h:mm a")}
-          </time>
-        </p>
+        {meetingCount <= 2 && (
+          <p
+            style={{
+              color: `hsl(${meeting.color},200%)`,
+            }}
+            className="text-xs font-medium"
+          >
+            {" "}
+            <time dateTime={meeting.startDateTime}>
+              {format(meeting.startDateTime, "h:mm a")}
+            </time>{" "}
+            -{" "}
+            <time dateTime={meeting.startDateTime}>
+              {format(meeting.startDateTime, "h:mm a")}
+            </time>
+          </p>
+        )}
       </div>
     </motion.div>
   );
