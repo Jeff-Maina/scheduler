@@ -140,9 +140,7 @@ const Scheduler = () => {
                 onMouseEnter={() =>
                   !isAnItemBeingDragged ? null : setHoveredDate(day)
                 }
-                onMouseLeave={() =>
-                  !isAnItemBeingDragged ? null : setHoveredDate(undefined)
-                }
+                onMouseLeave={() => setHoveredDate(undefined)}
                 className={cn(
                   " w-full h-36 p-2 border-t border-r",
                   index === 0 && colStartClasses[getDay(day)],
@@ -316,7 +314,7 @@ const MeetingCard = ({
         setDraggedCardColor("");
         setIsDragging(false);
         setBeingDragged(false);
-        if (hoveredDate) {
+        if (hoveredDate && hoveredDate !== parseISO(meeting.startDateTime)) {
           setNewDate(meeting);
         }
       }}
