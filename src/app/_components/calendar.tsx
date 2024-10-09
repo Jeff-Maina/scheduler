@@ -135,7 +135,7 @@ const Scheduler = () => {
                   !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
                   isToday(day) &&
                     "bg-neutral-100 border-neutral-300  border-x border-y",
-                  isItemDraggedAndDayHovered && "border-x border-y"
+                  isItemDraggedAndDayHovered && "border-x border-y cursor-grabbing"
                 )}
                 style={{
                   backgroundColor: isItemDraggedAndDayHovered
@@ -285,19 +285,19 @@ const MeetingCard = ({
         }
       }}
       animate={{
-        rotate: isDragging ? 3 : 0,
+        rotate: isDragging ? 1 : 0,
       }}
       style={{
         backgroundColor: `hsl(${meeting.color},20%)`,
         pointerEvents: isDragging ? "none" : "auto",
         position: isDragging ? "fixed" : "relative",
-        transform: isDragging ? "rotate(30deg)" : "rotate(0deg)",
+        zIndex: isDragging ? 100 : 0,
         borderColor: isDragging
           ? `hsl(${meeting.color})`
           : `hsl(${meeting.color},10%)`,
       }}
       className={cn(
-        "w-full text-left max-w-44 p-1 mb-1 border-2 cursor-grab active:cursor-grabbing  rounded-md flex gap-1.5 items-stretch"
+        "w-full text-left max-w-44 p-1 mb-1 border cursor-grab active:cursor-grabbing  rounded-md flex gap-1.5 items-stretch !opacity-100"
       )}
     >
       <div
@@ -311,7 +311,7 @@ const MeetingCard = ({
           style={{
             color: `hsl(${meeting.color},200%)`,
           }}
-          className="text-xs font-semibold text- line-clamp-1"
+          className="text-xs font-medium text- line-clamp-1"
         >
           {meeting.subject}
         </p>

@@ -4,6 +4,9 @@ Features Implemented:
 - Select specific dates
 - View all events in a selected month
 - Drag and drop events to reschedule
+- Add drag constraints ( can't drag outside the calendar )
+- Event snaps back to its initial position if dropped outside calendar
+
 
 Pending Tasks ( in no particular order ):
 
