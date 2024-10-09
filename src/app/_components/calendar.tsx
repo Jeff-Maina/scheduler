@@ -24,7 +24,7 @@ import {
   isSameDay,
   parseISO,
 } from "date-fns";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TooltipWrapper from "./tooltip-wrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -52,7 +52,17 @@ const Scheduler = () => {
   let today = startOfToday();
 
   const [date, setDate] = useState<Date | undefined>(today);
-  let [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
+  let [currentMonth, setCurrentMonth] = useState(
+    format(date as Date, "MMM-yyyy")
+  );
+
+  // update current month whenever the date changes
+  useEffect(() => {
+    if (date) {
+      setCurrentMonth(format(date, "MMM-yyyy"));
+    }
+  }, [date]);
+
   let firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
 
   let days = eachDayOfInterval({
@@ -127,15 +137,22 @@ const Scheduler = () => {
             return (
               <div
                 key={index}
-                onMouseEnter={() => setHoveredDate(day)}
-                onMouseLeave={() => setHoveredDate(undefined)}
+                onMouseEnter={() =>
+                  !isAnItemBeingDragged ? null : setHoveredDate(day)
+                }
+                onMouseLeave={() =>
+                  !isAnItemBeingDragged ? null : setHoveredDate(undefined)
+                }
                 className={cn(
                   " w-full h-36 p-2 border-t border-r",
                   index === 0 && colStartClasses[getDay(day)],
                   !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
                   isToday(day) &&
                     "bg-neutral-100 border-neutral-300  border-x border-y",
-                  isItemDraggedAndDayHovered && "border-x border-y cursor-grabbing"
+                  isSameDay(day, date as Date) &&
+                    "border-neutral-400 border-x border-y",
+                  isItemDraggedAndDayHovered &&
+                    "border-x border-y cursor-grabbing"
                 )}
                 style={{
                   backgroundColor: isItemDraggedAndDayHovered
@@ -194,6 +211,15 @@ const CurrentDatePicker = ({
   previousMonth,
   nextMonth,
 }: CurrentDatePickerProps) => {
+  const occupiedDates = meetings.map(
+    (meeting) => new Date(meeting.startDateTime)
+  );
+
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      setDate(newDate);
+    }
+  };
   return (
     <div className="flex items-center gap-2">
       {" "}
@@ -213,7 +239,17 @@ const CurrentDatePicker = ({
           <Calendar
             mode="single"
             selected={date}
-            onSelect={setDate}
+            defaultMonth={date}
+            classNames={{
+              day_selected: "bg-blue-200",
+            }}
+            modifiers={{
+              occupied: occupiedDates,
+            }}
+            modifiersClassNames={{
+              occupied: "occupied-dates",
+            }}
+            onSelect={handleDateSelect}
             initialFocus
           />
         </PopoverContent>
@@ -306,7 +342,7 @@ const MeetingCard = ({
         }}
         className="w-1 shrink-0 bg-neutral-500 rounded-full"
       ></div>
-      <div className="min-h-fit flex items-center">
+      <div className="min-h-fit flex flex-col gap-1 items-start">
         <p
           style={{
             color: `hsl(${meeting.color},200%)`,
@@ -314,6 +350,21 @@ const MeetingCard = ({
           className="text-xs font-medium text- line-clamp-1"
         >
           {meeting.subject}
+        </p>
+        <p
+          style={{
+            color: `hsl(${meeting.color},200%)`,
+          }}
+          className="text-xs font-medium"
+        >
+          {" "}
+          <time dateTime={meeting.startDateTime}>
+            {format(meeting.startDateTime, "h:mm a")}
+          </time>{" "}
+          -{" "}
+          <time dateTime={meeting.startDateTime}>
+            {format(meeting.startDateTime, "h:mm a")}
+          </time>
         </p>
       </div>
     </motion.div>

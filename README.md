@@ -6,9 +6,12 @@ Features Implemented:
 - Drag and drop events to reschedule
 - Add drag constraints ( can't drag outside the calendar )
 - Event snaps back to its initial position if dropped outside calendar
+- Display indicators under dates with events on the day picker component
+- Display end & start time on the event card
 
 
 Pending Tasks ( in no particular order ):
+
 
 - Add event creation functionality
 - Implement recurring events logic
