@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { motion } from "framer-motion";
 import {
   Popover,
   PopoverContent,
@@ -110,7 +111,7 @@ const Scheduler = () => {
                 {format(day, "d")}
               </time>
 
-              <ScrollArea className="w-full h-28 pb-2 pr-3">
+              <div className="w-full h-28 pb-2 pr-3 overflow-visible">
                 {meetings.map((meeting, index) => {
                   return (
                     <>
@@ -120,7 +121,7 @@ const Scheduler = () => {
                     </>
                   );
                 })}
-              </ScrollArea>
+              </div>
             </div>
           ))}
         </div>
@@ -195,12 +196,24 @@ const CurrentDatePicker = ({
 };
 
 const MeetingCard = ({ meeting }: { meeting: TClassProps }) => {
+  const [isDragging, setIsDragging] = useState(false);
   return (
-    <button
+    <motion.div
+      drag
+      dragMomentum={false}
+      dragSnapToOrigin
+      dragTransition={{ bounceStiffness: 500, bounceDamping: 40 }}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => setIsDragging(false)}
       style={{
         backgroundColor: `hsl(${meeting.color},20%)`,
+        borderColor: isDragging
+          ? `hsl(${meeting.color})`
+          : `hsl(${meeting.color},10%)`,
       }}
-      className="w-full text-left p-1 mb-1  rounded-md flex gap-1.5 items-stretch"
+      className={cn(
+        "w-full text-left max-w-44 p-1 mb-1 border-2  rounded-md flex gap-1.5 items-stretch"
+      )}
     >
       <div
         style={{
@@ -215,10 +228,11 @@ const MeetingCard = ({ meeting }: { meeting: TClassProps }) => {
           }}
           className="text-xs font-semibold text- line-clamp-1"
         >
-          {meeting.subject}{" "}
+          {meeting.subject}
+          {isDragging.toString()}
         </p>
       </div>
-    </button>
+    </motion.div>
   );
 };
 
