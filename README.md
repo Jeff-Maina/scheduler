@@ -8,6 +8,7 @@ Features Implemented:
 - Event snaps back to its initial position if dropped outside calendar
 - Display indicators under dates with events on the day picker component
 - Display end & start time on the event card
+- Allow double-click on a day to quickly add an event
 
 
 Pending Tasks ( in no particular order ):
@@ -16,7 +17,6 @@ Pending Tasks ( in no particular order ):
 - Add event creation functionality
 - Implement recurring events logic
 - Enable event filtering by category or priority
-- Allow double-click on a day to quickly add an event
 - Implement keyboard shortcuts for quick navigation and event management
 - Add color coding for event categories or priorities
 - Allow resizing events to adjust the duration
