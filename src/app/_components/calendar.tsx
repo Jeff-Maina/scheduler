@@ -115,6 +115,7 @@ const Scheduler = () => {
   // new event logic
 
   const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   return (
     <>
@@ -143,7 +144,10 @@ const Scheduler = () => {
                 isAnItemBeingDragged && isSameDay(day, hoveredDate as Date);
               return (
                 <div
-                  onDoubleClick={() => setModalOpen(true)}
+                  onDoubleClick={() => {
+                    setModalOpen(true);
+                    setSelectedDate(day);
+                  }}
                   key={index}
                   onMouseEnter={() =>
                     !isAnItemBeingDragged ? null : setHoveredDate(day)
@@ -219,6 +223,7 @@ const Scheduler = () => {
       <NewEventModal
         isModalOpen={isModalOpen}
         toggleModal={() => setModalOpen(!isModalOpen)}
+        selectedDate={date}
       />
     </>
   );
@@ -403,8 +408,6 @@ const MeetingCard = ({
   );
 };
 
-export default Scheduler;
-
 let colStartClasses = [
   "",
   "col-start-2",
@@ -414,3 +417,7 @@ let colStartClasses = [
   "col-start-6",
   "col-start-7",
 ];
+
+
+export default Scheduler;
+
