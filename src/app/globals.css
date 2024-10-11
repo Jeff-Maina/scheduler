@@ -65,6 +65,14 @@
   }
 }
 
+body {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  background-image: linear-gradient(90deg, #6e6c6c12 1px, transparent 0),
+    linear-gradient(180deg, #80808012 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
 .occupied-dates::after {
   height: 4px;
   width: 4px;

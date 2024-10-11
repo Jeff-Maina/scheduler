@@ -14,13 +14,13 @@ Features Implemented:
 Pending Tasks ( in no particular order ):
 
 
+- use dndKit for the dnd stuff instead
 - Add event creation functionality
 - Implement recurring events logic
 - Enable event filtering by category or priority
 - Implement keyboard shortcuts for quick navigation and event management
 - Add color coding for event categories or priorities
 - Allow resizing events to adjust the duration
-- Sync events with external calendars (e.g., Google Calendar, Outlook) ( long shot lol)
 - Add search functionality to find events by name or date range
 - Display a weekly view and a day view in addition to the monthly view
 - Make it responsive

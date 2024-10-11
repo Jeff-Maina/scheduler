@@ -119,7 +119,7 @@ const Scheduler = () => {
 
   return (
     <>
-      <div className="max-w-[90rem] w-full flex flex-col min-h-[70vh] border border-neutral-200 rounded-md">
+      <div className="max-w-[90rem] bg-white w-full flex flex-col min-h-[70vh] border border-neutral-200// rounded-md">
         <div className="w-full h-12 shrink-0 border-b border-neutral-200 flex items-center p-4">
           <CurrentDatePicker
             previousMonth={prevMonth}
@@ -156,7 +156,6 @@ const Scheduler = () => {
                   className={cn(
                     " w-full h-36 p-2 border-t border-r",
                     index === 0 && colStartClasses[getDay(day)],
-                    !isSameMonth(day, firstDayCurrentMonth) && "bg-neutral-100",
                     isToday(day) &&
                       "bg-neutral-100 border-neutral-300  border-x border-y",
                     isSameDay(day, date as Date) &&
