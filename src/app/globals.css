@@ -86,3 +86,12 @@ body {
   transform: translate(-50%, 0%);
   z-index: 2999;
 }
+
+.custom-sidebar::-webkit-scrollbar{
+background-color: transparent;
+}
+
+.custom-sidebar::-webkit-scrollbar-thumb{
+width: 10px;
+  background-color: #e7e7e7;
+  }
