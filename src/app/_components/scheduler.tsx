@@ -32,7 +32,7 @@ import TooltipWrapper from "./tooltip-wrapper";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronLeft, ChevronRight, User, View } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleCheck, Dices, User, View } from "lucide-react";
 import SessionFilterMenu from "./sessions-filter-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -160,6 +160,24 @@ export default function Scheduler() {
                 filterIcon: <User size={14} />,
               }}
               filterOptions={coaches}
+            />
+            <FilterBox
+              activeFilters={filters.activities}
+              filterActions={{ resetFilter, updateFilter }}
+              filterDetails={{
+                filterType: "activities",
+                filterIcon: <Dices size={14} />,
+              }}
+              filterOptions={activities}
+            />
+            <FilterBox
+              activeFilters={filters.status}
+              filterActions={{ resetFilter, updateFilter }}
+              filterDetails={{
+                filterType: "status",
+                filterIcon: <CircleCheck size={14} />,
+              }}
+              filterOptions={statuses}
             />
           </div>
         </div>
@@ -306,7 +324,7 @@ const FilterBox = ({
             <>
               <span className="text-neutral-500">|</span>
               <div className="flex items-center gap-1">
-                {activeFilters.length <= 3 ? (
+                {activeFilters.length <= 2 ? (
                   activeFilters.map((fil, index) => (
                     <span
                       key={index}
@@ -326,6 +344,7 @@ const FilterBox = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[13rem]" align="start">
+        
         <ScrollArea className="flex max-h-[190px] flex-col w-full">
           {filterOptions.map((fil, index) => {
             return (
