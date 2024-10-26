@@ -47,8 +47,8 @@ import { Input } from "@/components/ui/input";
 
 // DATA
 const coaches = ["John", "Adam", "Sarah", "Matt", "Emma", "Chris", "Michael"];
-const activities = ["chess", "scrabble", "coding"];
-const statuses = ["completed", "pending", "cancelled"];
+const activities = ["Chess", "Scrabble", "Coding"];
+const statuses = ["Completed", "Pending", "Cancelled"];
 
 export default function Scheduler() {
   const [selectedView, setSelectedView] = useState<TView>("week");
@@ -348,7 +348,7 @@ const FilterBox = ({
   };
 
   return (
-    <DropdownMenu open={filterType === "coaches"}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild className="">
         <Button
           variant={"outline"}
