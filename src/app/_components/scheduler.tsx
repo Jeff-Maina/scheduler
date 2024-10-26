@@ -5,6 +5,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { TView } from "./types";
@@ -13,26 +21,27 @@ import CalendarComp from "./calendar";
 import {
   format,
   startOfToday,
-  addMonths,
   parse,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
-  getDay,
   startOfWeek,
   add,
-  isSameMonth,
-  isToday,
-  isSameDay,
-  parseISO,
-  getMonth,
 } from "date-fns";
 import TooltipWrapper from "./tooltip-wrapper";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronLeft, ChevronRight, View } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, View } from "lucide-react";
 import SessionFilterMenu from "./sessions-filter-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+// DATA
+const coaches = ["John", "Adam", "Sarah", "Matt", "Emma", "Chris", "Michael"];
+const activities = ["chess", "scrabble", "coding"];
+const statuses = ["completed", "pending", "cancelled"];
 
 export default function Scheduler() {
   const [selectedView, setSelectedView] = useState<TView>("week");
@@ -107,13 +116,19 @@ export default function Scheduler() {
         ? prev[param].filter((v) => v !== value)
         : [...prev[param], value],
     }));
-    console.log(filters);
+  };
+
+  const resetFilter = (param: keyof typeof filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      [param]: [],
+    }));
   };
 
   return (
     <main className="flex flex-col gap-3  w-full">
       <nav className="w-full h-10 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex h-full items-center gap-4">
           <CurrentDatePicker
             selectedView={selectedView}
             prevDuration={
@@ -134,10 +149,16 @@ export default function Scheduler() {
             setDate={setDate}
           />
 
-          <div className="flex items-center gap-1">
-            {filters.activities.map((activity) => (
-              <p>{activity.toString()}</p>
-            ))}
+          <div className="h-4 rounded-full w-[2px] bg-neutral-300" />
+
+          <div className="flex items-center gap-3">
+            <FilterBox
+              activeFilters={filters.coaches}
+              updateFilter={toggleFilter}
+              resetFilter={resetFilter}
+              filterType="coaches"
+              filterOptions={coaches}
+            />
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -244,6 +265,89 @@ const CurrentDatePicker = ({
   );
 };
 
-const FilterBox = () => {
-  return <div></div>;
+type TActivity = "activities" | "coaches" | "status";
+
+type TFiltersProps = {
+  filterType: TActivity;
+  activeFilters: string[];
+  resetFilter: (param: TActivity) => void;
+  updateFilter: (param: TActivity, value: string) => void;
+  filterOptions: string[];
+};
+
+const FilterBox = ({
+  filterType,
+  activeFilters,
+  updateFilter,
+  resetFilter,
+  filterOptions,
+}: TFiltersProps) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild className="">
+        <Button
+          variant={"outline"}
+          size={"sm"}
+          className="text-sm border-dashed border-neutral-200 flex items-center gap-2"
+        >
+          <span className="capitalize flex items-center gap-1">
+            <User size={14} />
+            {filterType}
+          </span>
+          {activeFilters.length > 0 ? (
+            <>
+              <span className="text-neutral-500">|</span>
+              <div className="flex items-center gap-1">
+                {activeFilters.length <= 3 ? (
+                  activeFilters.map((fil, index) => (
+                    <span
+                      key={index}
+                      className="p-0.5 bg-neutral-100 text-sm font-normal rounded-lg px-2"
+                    >
+                      {fil}
+                    </span>
+                  ))
+                ) : (
+                  <span className="p-0.5 px-2 rounded-lg bg-neutral-100">
+                    {activeFilters.length} selected
+                  </span>
+                )}
+              </div>
+            </>
+          ) : null}{" "}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-[13rem]" align="start">
+        <ScrollArea className="flex max-h-[190px] flex-col w-full">
+          {filterOptions.map((fil, index) => {
+            return (
+              <div
+                className="capitalize p-2 flex items-center gap-2 hover:bg-neutral-100 "
+                key={index}
+              >
+                <Checkbox
+                  onCheckedChange={() => updateFilter(filterType, fil)}
+                  checked={activeFilters.includes(fil)}
+                  id={`${fil}-${index}`}
+                  className="cursor-pointer"
+                />
+                <Label htmlFor={`${fil}-${index}`} className="cursor-pointer">
+                  {fil}
+                </Label>
+              </div>
+            );
+          })}
+        </ScrollArea>
+        <hr />
+        <div className="p-2 pb-1">
+          <button
+            onClick={() => resetFilter(filterType)}
+            className="w-full h-7 text-sm rounded-sm bg-neutral-900 hover:bg-black font-medium text-white flex items-center justify-center gap-2"
+          >
+            Reset filters
+          </button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 };
