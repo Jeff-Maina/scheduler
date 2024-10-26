@@ -32,11 +32,19 @@ import TooltipWrapper from "./tooltip-wrapper";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronLeft, ChevronRight, CircleCheck, Dices, User, View } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  Dices,
+  User,
+  View,
+} from "lucide-react";
 import SessionFilterMenu from "./sessions-filter-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 // DATA
 const coaches = ["John", "Adam", "Sarah", "Matt", "Emma", "Chris", "Michael"];
@@ -308,8 +316,23 @@ const FilterBox = ({
 }: TFiltersProps) => {
   const { filterIcon, filterType } = filterDetails;
   const { resetFilter, updateFilter } = filterActions;
+
+  const [stateOptions, setOptions] = useState(filterOptions);
+  const [searchTerm, setSearchTerm] = useState<null | string>(null);
+
+  const SearchOptions = (value: string) => {
+    setSearchTerm(value);
+    const results =
+      value === ""
+        ? filterOptions
+        : filterOptions.filter((f) =>
+            f.toLowerCase().includes(value.toLowerCase() as string)
+          );
+    setOptions(results);
+  };
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={filterType === "coaches"}>
       <DropdownMenuTrigger asChild className="">
         <Button
           variant={"outline"}
@@ -343,33 +366,50 @@ const FilterBox = ({
           ) : null}{" "}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[13rem]" align="start">
-        
+      <DropdownMenuContent
+        className="w-[13rem] flex flex-col gap-1"
+        align="start"
+      >
+        <div className="w-full border-b">
+          <Input
+            placeholder={`Search ${filterType}`}
+            className="!border-none !ring-0 !outline-none"
+            value={searchTerm || ""}
+            onChange={(e) => SearchOptions(e.target.value)}
+          />
+        </div>
         <ScrollArea className="flex max-h-[190px] flex-col w-full">
-          {filterOptions.map((fil, index) => {
-            return (
-              <div
-                className="capitalize p-2 flex items-center gap-2 hover:bg-neutral-100 "
-                key={index}
-              >
-                <Checkbox
-                  onCheckedChange={() => updateFilter(filterType, fil)}
-                  checked={activeFilters.includes(fil)}
-                  id={`${fil}-${index}`}
-                  className="cursor-pointer"
-                />
-                <Label htmlFor={`${fil}-${index}`} className="cursor-pointer">
-                  {fil}
-                </Label>
-              </div>
-            );
-          })}
+          {stateOptions.length > 0 ? (
+            stateOptions.map((fil, index) => {
+              return (
+                <div
+                  className="capitalize p-2 flex items-center gap-2 hover:bg-neutral-100 "
+                  key={index}
+                >
+                  <Checkbox
+                    onCheckedChange={() => updateFilter(filterType, fil)}
+                    checked={activeFilters.includes(fil)}
+                    id={`${fil}-${index}`}
+                    className="cursor-pointer"
+                  />
+                  <Label htmlFor={`${fil}-${index}`} className="cursor-pointer">
+                    {fil}
+                  </Label>
+                </div>
+              );
+            })
+          ) : (
+            <div className="flex h-8 items-center p-2 text-sm text-neutral-500">
+              No results
+            </div>
+          )}
         </ScrollArea>
         <hr />
         <div className="p-2 pb-1">
           <button
             onClick={() => resetFilter(filterType)}
-            className="w-full h-7 text-sm rounded-sm bg-neutral-900 hover:bg-black font-medium text-white flex items-center justify-center gap-2"
+            disabled={!(activeFilters.length > 0)}
+            className="w-full h-7 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:!bg-neutral-900 text-sm rounded-sm bg-neutral-900 hover:bg-black font-medium text-white flex items-center justify-center gap-2"
           >
             Reset filters
           </button>
