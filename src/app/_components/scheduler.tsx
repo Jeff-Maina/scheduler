@@ -109,7 +109,7 @@ export default function Scheduler() {
     status: [] as string[],
   });
 
-  const toggleFilter = (param: keyof typeof filters, value: string) => {
+  const updateFilter = (param: keyof typeof filters, value: string) => {
     setFilters((prev) => ({
       ...prev,
       [param]: prev[param].includes(value)
@@ -154,15 +154,17 @@ export default function Scheduler() {
           <div className="flex items-center gap-3">
             <FilterBox
               activeFilters={filters.coaches}
-              updateFilter={toggleFilter}
-              resetFilter={resetFilter}
-              filterType="coaches"
+              filterActions={{ resetFilter, updateFilter }}
+              filterDetails={{
+                filterType: "coaches",
+                filterIcon: <User size={14} />,
+              }}
               filterOptions={coaches}
             />
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <SessionFilterMenu filters={filters} updateFilter={toggleFilter} />
+          <SessionFilterMenu filters={filters} updateFilter={updateFilter} />
           <SelectViewMenu selectedView={selectedView} changeView={changeView} />
           <Button
             variant={"outline"}
@@ -268,20 +270,26 @@ const CurrentDatePicker = ({
 type TActivity = "activities" | "coaches" | "status";
 
 type TFiltersProps = {
-  filterType: TActivity;
   activeFilters: string[];
-  resetFilter: (param: TActivity) => void;
-  updateFilter: (param: TActivity, value: string) => void;
   filterOptions: string[];
+  filterDetails: {
+    filterType: TActivity;
+    filterIcon: React.ReactNode;
+  };
+  filterActions: {
+    resetFilter: (param: TActivity) => void;
+    updateFilter: (param: TActivity, value: string) => void;
+  };
 };
 
 const FilterBox = ({
-  filterType,
   activeFilters,
-  updateFilter,
-  resetFilter,
+  filterActions,
+  filterDetails,
   filterOptions,
 }: TFiltersProps) => {
+  const { filterIcon, filterType } = filterDetails;
+  const { resetFilter, updateFilter } = filterActions;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="">
@@ -291,7 +299,7 @@ const FilterBox = ({
           className="text-sm border-dashed border-neutral-200 flex items-center gap-2"
         >
           <span className="capitalize flex items-center gap-1">
-            <User size={14} />
+            {filterIcon}
             {filterType}
           </span>
           {activeFilters.length > 0 ? (
