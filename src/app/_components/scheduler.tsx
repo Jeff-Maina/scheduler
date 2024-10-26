@@ -136,11 +136,11 @@ export default function Scheduler() {
           </Button>
         </div>
       </nav>
-      <CalendarComp
-        currentDate={date}
-        days={days}
-        selectedView={selectedView}
-      />
+        <CalendarComp
+          currentDate={date}
+          days={days}
+          selectedView={selectedView}
+        />
     </main>
   );
 }

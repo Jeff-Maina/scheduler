@@ -49,6 +49,7 @@ const MonthView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
         {days.map((day, index) => {
           return (
             <div
+              key={index}
               className={cn(
                 " w-full h-36 p-3 border-t border-r border-neutral-200/60 flex flex-col items-start justify-start gap-2",
                 index === 0 && colStartClasses[getDay(day)],
@@ -101,6 +102,10 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
     end: endOfWeek(currentDate as Date),
   });
 
+  const currentTime = new Date();
+  const indicatorTop =
+    (getHours(currentTime) * 60 + getMinutes(currentTime)) / DAY_IN_MINUTES;
+
   return (
     <div className="flex items-start h-full">
       <div className="h-full w-20 shrink-0 border-r pt-14">
@@ -124,7 +129,10 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
         >
           {daysOfWeek.map((day, index) => {
             return (
-              <div className="p-4 flex gap-2 rounded-md w-full justify-center items-center text-center">
+              <div
+                key={index}
+                className="p-4 flex gap-2 rounded-md w-full justify-center items-center text-center"
+              >
                 <p>{format(day, "EEE")}</p>
                 <p
                   className={cn(
@@ -139,48 +147,60 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
             );
           })}
         </div>
-        <div className="w-full grid grid-cols-7 divide-x divide-neutral-200/70">
-          {daysOfWeek.map((day) => (
-            <div
-              key={day.toISOString()}
-              className={cn(
-                "relative w-full h-full grid grid-rows-24 divide-y divide-neutral-200/50",
-                isSameDay(currentDate as Date, day) && "animate-glow"
-              )}
-            >
-              {/* Render session cards */}
-              {sessions
-                .filter((session) =>
-                  isSameDay(parseISO(session.startTime), day)
-                )
-                .map((session) => {
-                  const start = parseISO(session.startTime);
-                  const end = parseISO(session.endTime);
+        <div className="w-full grid grid-cols-7 divide-x divide-neutral-200/70 relative">
+          <div
+            style={{
+              top: `${indicatorTop * 100}%`,
+            }}
+            className="absolute w-full h-2 z-30 -translate-y-1 flex items-center z-20 top-2/4"
+          >
+            <time className="text-[10px] font-semibold absolute leading-none -translate-x-[110%]">{format(currentTime, "hh:mm a")}</time>
+            <div className="w-full h-[1px] bg-neutral-700"/>
+          </div>
+          {daysOfWeek.map((day) => {
+            return (
+              <div
+                key={day.toISOString()}
+                className={cn(
+                  "relative w-full h-full grid grid-rows-24 divide-y divide-neutral-200/50",
+                  isSameDay(currentDate as Date, day) && "animate-glow"
+                )}
+              >
+                {/* Render session cards */}
+                {sessions
+                  .filter((session) =>
+                    isSameDay(parseISO(session.startTime), day)
+                  )
+                  .map((session) => {
+                    const start = parseISO(session.startTime);
+                    const end = parseISO(session.endTime);
 
-                  const totalMinutes = differenceInMinutes(end, start);
-                  const topPosition =
-                    (getHours(start) * 60 + getMinutes(start)) / DAY_IN_MINUTES;
+                    const totalMinutes = differenceInMinutes(end, start);
+                    const topPosition =
+                      (getHours(start) * 60 + getMinutes(start)) /
+                      DAY_IN_MINUTES;
 
-                  return (
-                    <div
-                      key={session.id}
-                      className="absolute left-1 right-1 rounded-md bg-white "
-                      style={{
-                        top: `${topPosition * 100}%`,
-                        height: `${(totalMinutes / DAY_IN_MINUTES) * 100}%`,
-                      }}
-                    >
-                      <SessionCard session={session} type="week" />
-                    </div>
-                  );
-                })}
+                    return (
+                      <div
+                        key={session.id}
+                        className="absolute left-1 right-1 rounded-md bg-white "
+                        style={{
+                          top: `${topPosition * 100}%`,
+                          height: `${(totalMinutes / DAY_IN_MINUTES) * 100}%`,
+                        }}
+                      >
+                        <SessionCard session={session} type="week" />
+                      </div>
+                    );
+                  })}
 
-              {/* Render hourly slots */}
-              {[...Array(24)].map((_, hour) => (
-                <div key={hour} className="h-12 border-neutral-300/50" />
-              ))}
-            </div>
-          ))}
+                {/* Render hourly slots */}
+                {[...Array(24)].map((_, hour) => (
+                  <div key={hour} className="h-12 border-neutral-300/50" />
+                ))}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -193,7 +213,7 @@ const DayView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
     end: endOfWeek(currentDate as Date),
   });
   return (
-    <div className="flex items-start">
+    <div className="flex items-start h-full">
       <div className="h-full w-20 shrink-0 border-r">
         <div className="h-12"></div>
         {hoursOfDay.map((hour, index) => (
@@ -210,7 +230,10 @@ const DayView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
         ))}
       </div>
       <div className="w-full h-full">
-        <div className="flex gap-2 h-12 border-b w-full justify-center items-center text-center">
+        <div
+          style={{ position: "sticky", top: 0 }}
+          className="flex gap-2 h-12 border-b w-full z-20 bg-white justify-center items-center text-center"
+        >
           <div className="flex items-center gap-2 ">
             <p>{format(currentDate as Date, "EEE")}</p>
             <p
@@ -269,7 +292,7 @@ const CalendarComp = ({
   currentDate,
 }: TCalendarCompProps) => {
   return (
-    <div className="w-full h-[90vh] overflow-scroll custom-sidebar  bg-white border border-neutral-200 rounded-md">
+    <div className="w-full h-[90vh] overflow-y-scroll custom-sidebar  bg-white border border-neutral-200 rounded-md">
       {selectedView === "month" && (
         <MonthView
           selectedView={selectedView}

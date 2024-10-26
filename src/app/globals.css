@@ -56,6 +56,10 @@
     --chart-5: 340 75% 55%;
   }
 }
+body::-webkit-scrollbar {
+  display: none;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -87,11 +91,12 @@ body {
   z-index: 2999;
 }
 
-.custom-sidebar::-webkit-scrollbar{
-background-color: transparent;
+.custom-sidebar::-webkit-scrollbar {
+  background-color: transparent;
+  width: 10px;
 }
 
-.custom-sidebar::-webkit-scrollbar-thumb{
-width: 10px;
+.custom-sidebar::-webkit-scrollbar-thumb {
   background-color: #e7e7e7;
-  }
+  border-radius: 10px;
+}
