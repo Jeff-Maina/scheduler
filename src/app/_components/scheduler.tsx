@@ -95,9 +95,20 @@ export default function Scheduler() {
   };
 
   const [filters, setFilters] = useState({
-    activities: [],
-    coaches: [],
+    activities: [] as string[],
+    coaches: [] as string[],
+    status: [] as string[],
   });
+
+  const toggleFilter = (param: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [param]: prev[param].includes(value)
+        ? prev[param].filter((v) => v !== value)
+        : [...prev[param], value],
+    }));
+    console.log(filters);
+  };
 
   return (
     <main className="flex flex-col gap-3  w-full">
@@ -122,9 +133,15 @@ export default function Scheduler() {
             date={date}
             setDate={setDate}
           />
+
+          <div className="flex items-center gap-1">
+            {filters.activities.map((activity) => (
+              <p>{activity.toString()}</p>
+            ))}
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <SessionFilterMenu />
+          <SessionFilterMenu filters={filters} updateFilter={toggleFilter} />
           <SelectViewMenu selectedView={selectedView} changeView={changeView} />
           <Button
             variant={"outline"}
@@ -136,11 +153,12 @@ export default function Scheduler() {
           </Button>
         </div>
       </nav>
-        <CalendarComp
-          currentDate={date}
-          days={days}
-          selectedView={selectedView}
-        />
+
+      <CalendarComp
+        currentDate={date}
+        days={days}
+        selectedView={selectedView}
+      />
     </main>
   );
 }
@@ -224,4 +242,8 @@ const CurrentDatePicker = ({
       </div>
     </div>
   );
+};
+
+const FilterBox = () => {
+  return <div></div>;
 };

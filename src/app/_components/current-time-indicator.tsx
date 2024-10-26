@@ -13,7 +13,7 @@ const CurrentTimeIndicator = () => {
 
   useEffect(() => {
     setTime(currentTime);
-  }, [currentTime]);
+  }, []);
 
   return (
     <div
