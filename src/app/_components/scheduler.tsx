@@ -331,6 +331,24 @@ const FilterBox = ({
     setOptions(results);
   };
 
+  const highlightSearchTerm = (text: string) => {
+    if (!searchTerm) return text;
+
+    const regex = new RegExp(`(${searchTerm})`, "gi");
+
+    const parts = text.split(regex);
+
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <span key={i} style={{ backgroundColor: "yellow" }}>
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <DropdownMenu open={filterType === "coaches"}>
       <DropdownMenuTrigger asChild className="">
@@ -383,7 +401,7 @@ const FilterBox = ({
             stateOptions.map((fil, index) => {
               return (
                 <div
-                  className="capitalize p-2 flex items-center gap-2 hover:bg-neutral-100 "
+                  className="p-2 flex items-center gap-2 hover:bg-neutral-100 "
                   key={index}
                 >
                   <Checkbox
@@ -393,7 +411,7 @@ const FilterBox = ({
                     className="cursor-pointer"
                   />
                   <Label htmlFor={`${fil}-${index}`} className="cursor-pointer">
-                    {fil}
+                    {highlightSearchTerm(fil)}
                   </Label>
                 </div>
               );
