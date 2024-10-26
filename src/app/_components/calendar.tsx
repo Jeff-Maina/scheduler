@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { date } from "zod";
 import SessionCard from "./session-card";
 import { sessions } from "@/app/utils/dummy-data";
+import CurrentTimeIndicator from "./current-time-indicator";
 
 const DAY_IN_MINUTES = 24 * 60;
 
@@ -102,10 +103,7 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
     end: endOfWeek(currentDate as Date),
   });
 
-  const currentTime = new Date();
-  const indicatorTop =
-    (getHours(currentTime) * 60 + getMinutes(currentTime)) / DAY_IN_MINUTES;
-
+  
   return (
     <div className="flex items-start h-full">
       <div className="h-full w-20 shrink-0 border-r pt-14">
@@ -148,15 +146,7 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
           })}
         </div>
         <div className="w-full grid grid-cols-7 divide-x divide-neutral-200/70 relative">
-          <div
-            style={{
-              top: `${indicatorTop * 100}%`,
-            }}
-            className="absolute w-full h-2 z-30 -translate-y-1 flex items-center z-20 top-2/4"
-          >
-            <time className="text-[10px] font-semibold absolute leading-none -translate-x-[110%]">{format(currentTime, "hh:mm a")}</time>
-            <div className="w-full h-[1px] bg-neutral-700"/>
-          </div>
+          <CurrentTimeIndicator />
           {daysOfWeek.map((day) => {
             return (
               <div
