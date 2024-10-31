@@ -189,7 +189,6 @@ export default function Scheduler() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <SelectViewMenu selectedView={selectedView} changeView={changeView} />
           <Button
             variant={"outline"}
             onClick={() => setDate(today)}
@@ -198,6 +197,7 @@ export default function Scheduler() {
           >
             Today
           </Button>
+          <SelectViewMenu selectedView={selectedView} changeView={changeView} />
         </div>
       </nav>
 
