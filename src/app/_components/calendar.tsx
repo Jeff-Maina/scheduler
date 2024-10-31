@@ -26,13 +26,19 @@ type TCalendarCompProps = {
   selectedView: TView;
   days: Date[];
   currentDate: Date | undefined;
+  clockSys: "12h" | "24h";
 };
 
-const hoursOfDay = Array.from({ length: 24 }).map((_, i) => ({
-  value: i,
-  label:
-    i > 12 ? String(i - 12).padStart(2) + " PM" : String(i).padStart(2) + " AM",
-}));
+const hoursOfDay = (clockSys: "12h" | "24h") =>
+  Array.from({ length: 24 }).map((_, i) => ({
+    value: i,
+    label:
+      clockSys === "12h"
+        ? i > 12
+          ? String(i - 12 + ":00").padStart(2) + " pm"
+          : String(i + ":00").padStart(2) + " am"
+        : String(i + ":00").padStart(2),
+  }));
 
 const MonthView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
   return (
@@ -97,17 +103,21 @@ const MonthView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
   );
 };
 
-const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
+const WeekView = ({
+  clockSys,
+  selectedView,
+  days,
+  currentDate,
+}: TCalendarCompProps) => {
   const daysOfWeek = eachDayOfInterval({
     start: startOfWeek(currentDate as Date),
     end: endOfWeek(currentDate as Date),
   });
 
-  
   return (
     <div className="flex items-start h-full">
       <div className="h-full w-20 shrink-0 border-r pt-14">
-        {hoursOfDay.map((hour, index) => (
+        {hoursOfDay(clockSys).map((hour, index) => (
           <div
             key={index}
             className={`w-full h-12  ${
@@ -146,7 +156,7 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
           })}
         </div>
         <div className="w-full grid grid-cols-7 divide-x divide-neutral-200/70 relative">
-          <CurrentTimeIndicator />
+          <CurrentTimeIndicator clockSys={clockSys} />
           {daysOfWeek.map((day) => {
             return (
               <div
@@ -197,7 +207,12 @@ const WeekView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
   );
 };
 
-const DayView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
+const DayView = ({
+  clockSys,
+  selectedView,
+  days,
+  currentDate,
+}: TCalendarCompProps) => {
   const daysOfWeek = eachDayOfInterval({
     start: startOfWeek(currentDate as Date),
     end: endOfWeek(currentDate as Date),
@@ -206,7 +221,7 @@ const DayView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
     <div className="flex items-start h-full">
       <div className="h-full w-20 shrink-0 border-r">
         <div className="h-12"></div>
-        {hoursOfDay.map((hour, index) => (
+        {hoursOfDay(clockSys).map((hour, index) => (
           <div
             key={index}
             className={`w-full h-12  ${
@@ -280,6 +295,7 @@ const CalendarComp = ({
   selectedView,
   days,
   currentDate,
+  clockSys,
 }: TCalendarCompProps) => {
   return (
     <div className="w-full h-[90vh] overflow-y-scroll custom-sidebar  bg-white border border-neutral-200 rounded-md">
@@ -288,6 +304,7 @@ const CalendarComp = ({
           selectedView={selectedView}
           days={days}
           currentDate={currentDate}
+          clockSys={clockSys}
         />
       )}
       {selectedView === "week" && (
@@ -295,6 +312,7 @@ const CalendarComp = ({
           selectedView={selectedView}
           days={days}
           currentDate={currentDate}
+          clockSys={clockSys}
         />
       )}{" "}
       {selectedView === "day" && (
@@ -302,6 +320,7 @@ const CalendarComp = ({
           selectedView={selectedView}
           days={days}
           currentDate={currentDate}
+          clockSys={clockSys}
         />
       )}
     </div>

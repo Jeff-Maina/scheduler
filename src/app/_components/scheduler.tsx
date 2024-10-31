@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { TView } from "./types";
+import { TClockSys, TView } from "./types";
 import SelectViewMenu from "./select-view-menu";
 import CalendarComp from "./calendar";
 import {
@@ -50,8 +50,12 @@ const coaches = ["John", "Adam", "Sarah", "Matt", "Emma", "Chris", "Michael"];
 const activities = ["Chess", "Scrabble", "Coding"];
 const statuses = ["Completed", "Pending", "Cancelled"];
 
+
+const clockSystems: TClockSys[] = ["12h", "24h"];
+
 export default function Scheduler() {
   const [selectedView, setSelectedView] = useState<TView>("week");
+  const [clockSys, setClockSys] = useState<TClockSys>("12h");
   const changeView = (value: TView) => {
     setSelectedView(value);
   };
@@ -188,15 +192,28 @@ export default function Scheduler() {
             />
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Button
             variant={"outline"}
             onClick={() => setDate(today)}
             size={"sm"}
-            className="flex bg-white items-center gap-1 border border-neutral-200 text-sm hover:bg-neutral-100 p-1 px-3  hover:text-black rounded"
+            className="flex bg-white items-center gap-1 h-9 border border-neutral-300 text-sm hover:bg-neutral-100 p-1 px-3  hover:text-black rounded"
           >
             Today
           </Button>
+          <div className="h-9 border border-neutral-300 rounded flex items-center p-1">
+            {clockSystems.map((sys, index) => (
+              <button
+                onClick={() => setClockSys(sys)}
+                className={cn(
+                  "h-full px-3 rounded text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-black",
+                  clockSys === sys ? "!bg-neutral-200 !text-black" : ""
+                )}
+              >
+                {sys}
+              </button>
+            ))}
+          </div>
           <SelectViewMenu selectedView={selectedView} changeView={changeView} />
         </div>
       </nav>
@@ -205,6 +222,7 @@ export default function Scheduler() {
         currentDate={date}
         days={days}
         selectedView={selectedView}
+        clockSys={clockSys}
       />
     </main>
   );

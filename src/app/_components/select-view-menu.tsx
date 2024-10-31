@@ -33,14 +33,14 @@ const ViewsList: { view: TView; icon: React.ReactNode }[] = [
 
 const SelectViewMenu = ({ selectedView, changeView }: TSelectViewMenuProps) => {
   return (
-    <div className="h-9 border rounded flex items-center p-1">
+    <div className="h-9 border  border-neutral-300 rounded flex items-center p-1">
       {ViewsList.map(({ view, icon }, index) => (
         <TooltipWrapper label={`${view} view`} className="font-semibold">
           <button
             onClick={() => changeView(view)}
             className={cn(
               "h-full px-3 rounded text-neutral-600 hover:bg-neutral-100 hover:text-black",
-              selectedView === view ? "!bg-neutral-300 !text-black" : ""
+              selectedView === view ? "!bg-neutral-200 !text-black" : ""
             )}
           >
             {icon}
