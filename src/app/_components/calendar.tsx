@@ -7,10 +7,12 @@ import {
   getDay,
   getHours,
   getMinutes,
+  isAfter,
   isSameDay,
   isSameMonth,
   isToday,
   parseISO,
+  startOfDay,
   startOfWeek,
 } from "date-fns";
 import { TView } from "./types";
@@ -115,7 +117,7 @@ const WeekView = ({
   });
 
   return (
-    <div className="flex items-start h-full">
+    <div className="flex items-start h-full ">
       <div className="h-full w-20 shrink-0 border-r pt-14">
         {hoursOfDay(clockSys).map((hour, index) => (
           <div
@@ -173,7 +175,12 @@ const WeekView = ({
                   )
                   .map((session) => {
                     const start = parseISO(session.startTime);
-                    const end = parseISO(session.endTime);
+                    let end = parseISO(session.endTime);
+
+                    const midnight = startOfDay(addDays(day, 1)); // Midnight of the next day
+                    if (isAfter(end, midnight)) {
+                      end = midnight;
+                    }
 
                     const totalMinutes = differenceInMinutes(end, start);
                     const topPosition =

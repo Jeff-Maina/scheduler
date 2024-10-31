@@ -473,9 +473,9 @@ const SessionMoreDetails = ({
     <Popover open={isPopoverOpen} onOpenChange={toggleDetailsPopover}>
       <PopoverTrigger className="sr-only">Open</PopoverTrigger>
       <PopoverContent
-        side="left"
-        align="end"
-        alignOffset={50}
+        side="top"
+        align="center"
+        // alignOffset={50}
         className="p-0 py-4 pb-2 w-[350px] flex flex-col gap-2.5"
       >
         {" "}
