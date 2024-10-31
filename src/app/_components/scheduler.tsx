@@ -373,7 +373,7 @@ const FilterBox = ({
           size={"sm"}
           className="text-sm border-dashed border-neutral-200 flex items-center gap-2"
         >
-          <span className="capitalize flex items-center gap-1">
+          <span className="capitalize flex items-center gap-2">
             {filterIcon}
             {filterType}
           </span>
@@ -391,7 +391,7 @@ const FilterBox = ({
                     </span>
                   ))
                 ) : (
-                  <span className="p-0.5 px-2 rounded-lg bg-neutral-100">
+                  <span className="p-0.5 px-2 rounded-lg text-blue-500 bg-neutral-100">
                     {activeFilters.length} selected
                   </span>
                 )}
@@ -401,7 +401,7 @@ const FilterBox = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[13rem] flex flex-col gap-1"
+        className="w-[13rem] flex flex-col gap-1 p-0 rounded"
         align="start"
       >
         <div className="w-full border-b">
@@ -439,7 +439,7 @@ const FilterBox = ({
           )}
         </ScrollArea>
         <hr />
-        <div className="p-2 pb-1">
+        <div className="p-1 pb-1">
           <button
             onClick={() => resetFilter(filterType)}
             disabled={!(activeFilters.length > 0)}

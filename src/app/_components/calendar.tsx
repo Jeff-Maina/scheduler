@@ -253,8 +253,9 @@ const DayView = ({
           </div>
         </div>
 
-        <div className="relative w-full h-full grid grid-rows-24 divide-y divide-neutral-200/50">
+        <div className="relative w-full grid   divide-y divide-neutral-200/50">
           {/* Render session cards */}
+          <CurrentTimeIndicator clockSys={clockSys} />
           {sessions
             .filter((session) =>
               isSameDay(parseISO(session.startTime), currentDate as Date)
@@ -283,7 +284,7 @@ const DayView = ({
 
           {/* Render hourly slots */}
           {[...Array(24)].map((_, hour) => (
-            <div key={hour} className="h-12 border-neutral-300/50" />
+            <div key={hour} className="h-12 border border-neutral-800" />
           ))}
         </div>
       </div>
