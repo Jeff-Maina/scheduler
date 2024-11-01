@@ -470,128 +470,128 @@ const SessionMoreDetails = ({
   sessionActions,
 }: TSessionPopoverType) => {
   return (
-    <Popover open={isPopoverOpen} onOpenChange={toggleDetailsPopover}>
-      <PopoverTrigger className="sr-only">Open</PopoverTrigger>
-      <PopoverContent
-        side="top"
-        align="center"
-        // alignOffset={50}
-        className="p-0 py-4 pb-2 w-[350px] flex flex-col gap-2.5"
-      >
+    <Dialog open={isPopoverOpen} onOpenChange={toggleDetailsPopover}>
+      <DialogTrigger className="sr-only">Open</DialogTrigger>
+      <DialogContent className="p-0 py-4 pb-2 w-[350px] ">
         {" "}
-        <div className="px-4">
-          <h1 className="font-semibold">{session.title}</h1>
-          <p className="text-sm text-neutral-600">{session.description}</p>
-        </div>
-        <hr />
-        <div className="flex px-4  text-sm text-neutral-600 items-center gap-4 leading-none">
-          <CalendarDays size={16} />
-          <p className="text-sm text-neutral-600">
-            {format(session.startTime, "dd MMMM yyyy")}
-          </p>
-        </div>
-        <div className="flex px-4  text-sm items-center text-neutral-600 gap-4 leading-none">
-          <Clock size={16} />
-          <p className="text-sm text-neutral-600 flex items-center gap-2">
-            {format(session.startTime, "hh:mm a")}
-            <ArrowRight size={16} />
-            {format(session.endTime, "hh:mm a")}
-          </p>
-        </div>
-        <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
-          <MapPin size={16} />
-          <p className="text-sm text-neutral-600 flex items-center gap-2">
-            Consolata Primary school
-          </p>
-        </div>
-        <hr />
-        <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
-          <User size={16} />
-          <p className="text-sm text-neutral-600 flex items-center gap-2">
-            Coach {session.instructorName}
-          </p>
-        </div>
-        {session.link && (
+        <div className="flex flex-col gap-2.5 text-start">
+          <div className="px-4">
+            <h1 className="font-semibold">{session.title}</h1>
+            <p className="text-sm text-neutral-600">{session.description}</p>
+          </div>
+          <hr />
+          <div className="flex px-4  text-sm text-neutral-600 items-center gap-4 leading-none">
+            <CalendarDays size={16} />
+            <p className="text-sm text-neutral-600">
+              {format(session.startTime, "dd MMMM yyyy")}
+            </p>
+          </div>
+          <div className="flex px-4  text-sm items-center text-neutral-600 gap-4 leading-none">
+            <Clock size={16} />
+            <p className="text-sm text-neutral-600 flex items-center gap-2">
+              {format(session.startTime, "hh:mm a")}
+              <ArrowRight size={16} />
+              {format(session.endTime, "hh:mm a")}
+            </p>
+          </div>
           <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
-            <Link size={16} />
-            <a
-              href={session.link}
-              className="text-sm  text-blue-500 hover:underline flex items-center gap-2"
-            >
-              {session.link}
-            </a>
+            <MapPin size={16} />
+            <p className="text-sm text-neutral-600 flex items-center gap-2">
+              Consolata Primary school
+            </p>
           </div>
-        )}
-        <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
-          <Users size={16} />
-          <p className="text-sm text-neutral-600  flex items-center gap-2">
-            {session.participants}{" "}
-            {session.participants === 1 ? "participant" : "participants"}
-          </p>
-        </div>
-        <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
-          <Dices size={16} />
-          <p className="text-sm text-neutral-600 capitalize  flex items-center gap-2">
-            {session.activityName}
-          </p>
-        </div>
-        <hr />
-        <div className="w-full px-4  flex items-center justify-between">
-          <div>
-            <small className="text-neutral-600">
-              Last updated : 23 Oct 2024
-            </small>
+          <hr />
+          <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
+            <User size={16} />
+            <p className="text-sm text-neutral-600 flex items-center gap-2">
+              Coach {session.instructorName}
+            </p>
           </div>
-          <div className="flex itemes-center">
-            <TooltipWrapper
-              label="Edit class"
-              className="font-semibold p-1 px-2 rounded"
-            >
-              <Button
-                variant={"ghost"}
-                className="text-neutral-600 hover:text-black !ring-0 !outline-none"
-                size={"icon"}
-                onClick={() => {
-                  sessionActions.editSession();
-                }}
+          {session.link && (
+            <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
+              <Link size={16} />
+              <a
+                href={session.link}
+                className="text-sm  text-blue-500 hover:underline flex items-center gap-2"
               >
-                <Pencil size={14} />
-              </Button>
-            </TooltipWrapper>
-            <TooltipWrapper
-              label="Delete class"
-              className="font-semibold p-1 px-2 rounded"
-            >
-              <Button
-                variant={"ghost"}
-                className="text-neutral-600 hover:text-red-500 hover:bg-red-50"
-                size={"icon"}
-                onClick={() => {
-                  sessionActions.deleteSession();
-                }}
+                {session.link}
+              </a>
+            </div>
+          )}
+          <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
+            <Users size={16} />
+            <p className="text-sm text-neutral-600  flex items-center gap-2">
+              {session.participants}{" "}
+              {session.participants === 1 ? "participant" : "participants"}
+            </p>
+          </div>
+          <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
+            <Dices size={16} />
+            <p className="text-sm text-neutral-600 capitalize  flex items-center gap-2">
+              {session.activityName}
+            </p>
+          </div>
+          <hr />
+          <div className="w-full px-4  flex items-center justify-between">
+            <div>
+              <small className="text-neutral-600">
+                Last updated : 23 Oct 2024
+              </small>
+            </div>
+            <div className="flex itemes-center">
+              <TooltipWrapper
+                label="Edit class"
+                className="font-semibold p-1 px-2 rounded"
               >
-                <Trash size={14} />
-              </Button>
-            </TooltipWrapper>
-            <TooltipWrapper
-              label="Email class details"
-              className="font-semibold p-1 px-2 rounded"
-            >
-              <Button
-                variant={"ghost"}
-                className="text-neutral-600 hover:text-black !ring-0 !outline-none"
-                size={"icon"}
-                onClick={() => {
-                  sessionActions.mailDetails();
-                }}
+                <Button
+                  variant={"ghost"}
+                  className="text-neutral-600 hover:text-black !ring-0 !outline-none"
+                  size={"icon"}
+                  onClick={() => {
+                    sessionActions.editSession();
+                    toggleDetailsPopover();
+                  }}
+                >
+                  <Pencil size={14} />
+                </Button>
+              </TooltipWrapper>
+              <TooltipWrapper
+                label="Delete class"
+                className="font-semibold p-1 px-2 rounded"
               >
-                <Mail size={14} />
-              </Button>
-            </TooltipWrapper>
+                <Button
+                  variant={"ghost"}
+                  className="text-neutral-600 hover:text-red-500 hover:bg-red-50"
+                  size={"icon"}
+                  onClick={() => {
+                    sessionActions.deleteSession();
+                    toggleDetailsPopover();
+                  }}
+                >
+                  <Trash size={14} />
+                </Button>
+              </TooltipWrapper>
+              <TooltipWrapper
+                label="Email class details"
+                className="font-semibold p-1 px-2 rounded"
+              >
+                <Button
+                  variant={"ghost"}
+                  className="text-neutral-600 hover:text-black !ring-0 !outline-none"
+                  size={"icon"}
+                  onClick={() => {
+                    sessionActions.mailDetails();
+                    toggleDetailsPopover();
+                  }}
+                >
+                  <Mail size={14} />
+                </Button>
+              </TooltipWrapper>
+            </div>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 };
 

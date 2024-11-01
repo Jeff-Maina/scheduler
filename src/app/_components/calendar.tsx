@@ -177,7 +177,7 @@ const WeekView = ({
                     const start = parseISO(session.startTime);
                     let end = parseISO(session.endTime);
 
-                    const midnight = startOfDay(addDays(day, 1)); // Midnight of the next day
+                    const midnight = startOfDay(addDays(day, 1)); 
                     if (isAfter(end, midnight)) {
                       end = midnight;
                     }
