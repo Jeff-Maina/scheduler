@@ -92,7 +92,7 @@ const MonthView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
                 {sessions.map((session, index, array) => {
                   return (
                     isSameDay(parseISO(session.startTime), day) && (
-                      <SessionCard session={session} type="day" key={index} />
+                      <SessionCard session={session} type="month" key={index} />
                     )
                   );
                 })}

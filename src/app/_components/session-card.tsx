@@ -45,11 +45,12 @@ import {
 } from "@/components/ui/dialog";
 
 import { cn } from "@/lib/utils";
-import { format, parseISO } from "date-fns";
+import { differenceInMinutes, format, parseISO } from "date-fns";
 
 import {
   ArrowRight,
   CalendarDays,
+  Check,
   ChevronDown,
   Clock,
   Copy,
@@ -101,6 +102,11 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
     mailDetails: () => toggleMailDetailsModal(),
   };
 
+  const start = parseISO(session.startTime);
+  const end = parseISO(session.endTime);
+
+  const totalMinutes = differenceInMinutes(end, start);
+
   return (
     <>
       <div className="w-full h-full">
@@ -108,7 +114,7 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
           <div
             onClick={toggleDetailsPopover}
             className={cn(
-              "flex w-full h-full min-h-5 items-center cursor-pointer gap-1 pr-3  opacity-80 hover:opacity-100 rounded",
+              "flex w-full h-full min-h-10 items-center cursor-pointer gap-1 pr-3  opacity-80 hover:opacity-100 rounded",
               type === "week" && "items-start p-2 gap-2 opacity-100",
               isPopoverOpen && "shadow-lg"
             )}
@@ -118,12 +124,12 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
             }}
           >
             <div
-              className="h-full w-1 rounded-full"
+              className="h-full w-1 shrink-0 rounded-full"
               style={{
                 backgroundColor: `hsl(${session.colorCode})`,
               }}
             />
-            {type === "day" && (
+            {type === "month" && (
               <p className="text-xs font-semibold line-clamp-1">
                 <span className="opacity-60 text-[10px] mr-1">
                   {format(parseISO(session.startTime), "h:mm a ")}
@@ -132,19 +138,26 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
               </p>
             )}
             {type === "week" && (
-              <div>
+              <div
+                className={cn(
+                  " h-full flex flex-col",
+                  totalMinutes <= 60 ? "justify-center" : ""
+                )}
+              >
                 <p className="text-sm font-semibold line-clamp-2">
                   {session.title}
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium tracking-tight mr-1">
-                    {format(parseISO(session.startTime), "h:mm a ")}
-                  </span>
-                  -
-                  <span className="text-xs font-medium tracking-tight mr-1">
-                    {format(parseISO(session.endTime), "h:mm a ")}
-                  </span>{" "}
-                </div>
+                {totalMinutes > 60 ? (
+                  <div className="flex items-center gap-2 leading-none">
+                    <span className="text-[10px] font-semibold tracking-tight mr-1">
+                      {format(parseISO(session.startTime), "h:mm a ")}
+                    </span>
+                    -
+                    <span className="text-[10px] font-semibold tracking-tight mr-1">
+                      {format(parseISO(session.endTime), "h:mm a ")}
+                    </span>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
@@ -469,6 +482,20 @@ const SessionMoreDetails = ({
   session,
   sessionActions,
 }: TSessionPopoverType) => {
+  const [isLinkCopied, setLinkCopied] = useState(false);
+  const copyIcon = isLinkCopied ? (
+    <Check size={12} strokeWidth={3} />
+  ) : (
+    <Copy size={12} strokeWidth={3} />
+  );
+
+  const copyLink = () => {
+    setLinkCopied(true);
+    setTimeout(() => {
+      setLinkCopied(false);
+    }, 2000);
+  };
+
   return (
     <Dialog open={isPopoverOpen} onOpenChange={toggleDetailsPopover}>
       <DialogTrigger className="sr-only">Open</DialogTrigger>
@@ -510,12 +537,25 @@ const SessionMoreDetails = ({
           {session.link && (
             <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
               <Link size={16} />
-              <a
-                href={session.link}
-                className="text-sm  text-blue-500 hover:underline flex items-center gap-2"
-              >
-                {session.link}
-              </a>
+              <div className="flex items-center gap-3 justify-between">
+                <a
+                  href={session.link}
+                  className="text-sm  text-blue-500 hover:underline flex line-clamp-1 items-center gap-2"
+                >
+                  {session.link}
+                </a>
+                <TooltipWrapper
+                  label={isLinkCopied ? "copied" : "copy"}
+                  className="font-semibold p-1 px-2 rounded"
+                >
+                  <button
+                    onClick={copyLink}
+                    className="size-6 text-neutral-500 hover:text-black hover:bg-neutral-100 border shrink-0 rounded grid place-items-center"
+                  >
+                    {copyIcon}
+                  </button>
+                </TooltipWrapper>
+              </div>
             </div>
           )}
           <div className="flex  px-4 text-sm items-center text-neutral-600 gap-4 leading-none">
