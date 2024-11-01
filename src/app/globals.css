@@ -100,3 +100,18 @@ body {
   background-color: #e7e7e7;
   border-radius: 10px;
 }
+
+
+.animate-glow {
+  animation: glow 1s alternate ;
+}
+
+@keyframes glow {
+  from {
+  background-color: white;
+  }
+  to {
+    background-color: rgba(255, 0, 0, 0.121);
+  }
+
+}
