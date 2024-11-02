@@ -12,6 +12,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetClose,
 } from "@/components/ui/sheet";
 import {
   Popover,
@@ -81,9 +83,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 type TSessionCardPropsType = {
   session: TSessionType;
   type?: "month" | "week" | "day";
+  updateSession: (val: TSessionType) => void;
 };
 
-export default function SessionCard({ session, type }: TSessionCardPropsType) {
+export default function SessionCard({
+  session,
+  type,
+  updateSession,
+}: TSessionCardPropsType) {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const toggleEditSheet = () => setSheetOpen((prev) => !prev);
 
@@ -168,6 +175,7 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
         isSheetOpen={isSheetOpen}
         session={session}
         toggleEditSheet={toggleEditSheet}
+        updateSession={updateSession}
       />
       <SessionMoreDetails
         isPopoverOpen={isPopoverOpen}
@@ -191,15 +199,21 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
 
 type TContextMenuProps = {
   children: React.ReactNode;
-  toggleEditSheet: () => void
+  toggleEditSheet: () => void;
 };
 
-const SessionContextMenu = ({ children,toggleEditSheet }: TContextMenuProps) => {
+const SessionContextMenu = ({
+  children,
+  toggleEditSheet,
+}: TContextMenuProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger className="">{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-44">
-        <ContextMenuItem onClick={toggleEditSheet} className="flex  items-center justify-between hover:bg-neutral-100 cursor-pointer ">
+        <ContextMenuItem
+          onClick={toggleEditSheet}
+          className="flex  items-center justify-between hover:bg-neutral-100 cursor-pointer "
+        >
           <div className="flex items-center gap-2">
             <Pencil size={12} />
             Edit
@@ -228,16 +242,23 @@ type TSessionEditType = {
   isSheetOpen: boolean;
   toggleEditSheet: () => void;
   session: TSessionType;
+  updateSession: (val: TSessionType) => void;
 };
 
 const SessionEditSheet = ({
   isSheetOpen,
   toggleEditSheet,
   session,
+  updateSession,
 }: TSessionEditType) => {
   const [date, setDate] = useState<Date | undefined>(
     new Date(session.startTime)
   );
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      setDate(newDate);
+    }
+  };
 
   // Assuming you have a session object to initialize the state from
   const [title, setTitle] = useState(session.title);
@@ -258,297 +279,366 @@ const SessionEditSheet = ({
   const [notes, setNotes] = useState(session.notes || "");
   const [recurrence, setRecurrence] = useState(session.recurrence);
 
+  const updatedSession = {
+    id: session.id,
+    title,
+    activityName,
+    instructorName,
+    startTime: date
+      ? `${format(date, "yyyy-MM-dd")}T${startTime}`
+      : session.startTime,
+    endTime: date
+      ? `${format(date, "yyyy-MM-dd")}T${endTime}`
+      : session.endTime,
+    location: location || null,
+    sessionType,
+    groupType,
+    participants,
+    description,
+    isAllDay,
+    link: link || undefined,
+    colorCode: colorCode || undefined,
+    notes,
+    recurrence,
+  };
+
   return (
     <Sheet open={isSheetOpen} onOpenChange={toggleEditSheet}>
       <SheetContent className="min-w-[500px] bg-transparent p-3 border-none shadow-none !ring-none !outline-none">
-        <div className="w-full h-full flex flex-col gap-2 bg-white rounded-md shadow-lg">
-          <SheetHeader className="p-4">
-            <SheetTitle className=" text-base">Edit session</SheetTitle>
+        <div className="w-full h-full flex flex-col bg-white rounded-md shadow-lg justify-between">
+          <SheetHeader className="px-4 py-2 h-12 flex flex-col justify-center border-b">
+            <SheetTitle className="text-base tracking-tight">
+              Edit details
+            </SheetTitle>
             <SheetDescription className="sr-only">
               session details
             </SheetDescription>
           </SheetHeader>
-          <div className="flex flex-col gap-4 w-full">
-            {/* input */}
-            <div className="px-4  flex flex-col gap-3">
-              <Label
-                htmlFor="title"
-                className=" text-sm font-medium flex items-center gap-2"
-              >
-                Class title
-              </Label>
-              <Input
-                name="title"
-                className=""
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <hr className="border-neutral-200/60" />
-            {/* time */}
-            <div className=" flex flex-col gap-2">
-              <p className="px-4 text-sm font-medium flex items-center gap-2">
-                {/* <Clock size={16} /> */}
-                Date and time
-              </p>
-              <div className="px-4 flex items-center justify-between gap-4">
-                <div className="w-full">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"ghost"}
-                        className={cn(
-                          " justify-center w-full  text-center gap-2 font-normal text-neutral-800 border h-9 border-neutral-200 text-sm px-2   tracking-tight",
-                          !session.startTime && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarDays size={16} />
-                        {session.startTime ? (
-                          format(session.startTime, "dd MMMM yyyy")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        defaultMonth={date}
-                        classNames={{
-                          day_selected: "bg-blue-200 hover:!bg-blue-200",
-                        }}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex  items-center gap-2 h-10 rounded-lg">
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="max-w-fit px-2 hover:bg-neutral-100  shadow-none border-neutral-200 !outline-none !ring-0"
-                  />
-                  <ArrowRight size={14} />
-                  <Input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="max-w-fit px-2 hover:bg-neutral-100  shadow-none border-neutral-200 !outline-none !ring-0"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="px-4 flex  gap-4 w-full">
-              <div className="flex w-2/4 items-center space-x-2">
-                <Switch
-                  checked={isAllDay}
-                  onCheckedChange={setIsAllDay}
-                  id="all-day"
-                />
-                <Label htmlFor="all-day" className="font-normal">
-                  Session runs all day
+          <ScrollArea className=" flex flex-col max-h-full border-b  rounded-b-none rounded-md">
+            <div className="flex flex-col py-3 gap-4 w-full">
+              {/* input */}
+              <div className="px-4  flex flex-col gap-3">
+                <Label
+                  htmlFor="title"
+                  className=" text-xs font-medium flex items-center gap-2 text-orange-900"
+                >
+                  Class title
                 </Label>
+                <Input
+                  name="title"
+                  className=""
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
               </div>
-              <div className="w-2/4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full">
-                    <div className="w-full border rounded text-sm font-medium hover:bg-neutral-100 text-neutral-700 border-transparent hover:border-neutral-200 h-10 px-2 flex items-center justify-between group/btn">
-                      <div className="flex items-center gap-2">
-                        <Repeat size={14} />
-                        <span>Repeat</span>
-                      </div>
-                      <ChevronDown
-                        size={14}
-                        className="opacity-0 group-hover/btn:opacity-100 transition-all"
-                      />
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    side="left"
-                    align="start"
-                    className="w-[250px] rounded-md text-sm"
-                  >
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black">
-                      Every day
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black">
-                      Every weekday
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
-                      <span>Every week</span>
-                      <span className="text-neutral-400 font-medium">
-                        on sat
-                      </span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
-                      <span>Every 2 weeks</span>
-                      <span className="text-neutral-400 font-medium">
-                        on sat
-                      </span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
-                      <span>Every month</span>
-                      <span className="text-neutral-400 font-medium">
-                        on the 20th
-                      </span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
-                      <span>Every month</span>
-                      <span className="text-neutral-400 font-medium">
-                        on the last sat
-                      </span>
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuSeparator className="bg-neutral-200" />
-                    <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black">
-                      Custom...
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className="flex flex-col px-4 gap-2">
+                <p className="text-xs font-medium flex items-center gap-2 text-orange-900">
+                  Activity
+                </p>
+
+                <Select
+                  value={activityName}
+                  onValueChange={(value) => setActivityName(activityName)}
+                >
+                  <SelectTrigger className="w-full  placeholder:text-neutral-700">
+                    <SelectValue className="text-neutral-400" />
+                  </SelectTrigger>
+                  <SelectContent className="w-44">
+                    <SelectItem value="chess">Chess</SelectItem>
+                    <SelectItem value="scrabble">Scrabble</SelectItem>
+                    <SelectItem value="coding">Coding</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            <hr className="border-neutral-200" />
+              <div className="flex flex-col px-4 gap-2">
+                <p className="text-xs font-medium flex items-center gap-2 text-orange-900">
+                  Description
+                </p>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="   h-20 resize-none"
+                  placeholder="Description"
+                />
+              </div>
+              <div className="flex flex-col px-4 gap-2">
+                <p className="text-xs font-medium flex items-center gap-2 text-orange-900">
+                  Instructor
+                </p>
 
-            {/* participants,notes,colorCode */}
-            {/* Description */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm font-medium flex items-center gap-2">
-                Description
-              </p>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="   h-20 resize-none"
-                placeholder="Description"
-              />
-            </div>
-            {/* instructor */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm font-medium flex items-center gap-2">
-                Instructor
-              </p>
-
-              <Select
-                value={instructorName}
-                onValueChange={(value) => setInstructorName(value)}
-              >
-                <SelectTrigger className="w-full placeholder:text-neutral-700">
-                  <SelectValue
-                    className="text-neutral-400"
-                    aria-label={instructorName}
-                  />
-                </SelectTrigger>
-                <SelectContent className="w-64">
-                  <ScrollArea className="flex flex-col max-h-[190px]">
-                    {coaches.map((coach, index) => {
-                      const name =
-                        coach.split(" ")[0] +
-                        " " +
-                        coach.split(" ")[1].slice(0, 1);
-                      return (
-                        <SelectItem
-                          key={index}
-                          value={coach}
-                          className="cursor-pointer"
+                <Select
+                  value={instructorName}
+                  onValueChange={(value) => setInstructorName(value)}
+                >
+                  <SelectTrigger className="w-full placeholder:text-neutral-700">
+                    <SelectValue
+                      className="text-neutral-400"
+                      aria-label={instructorName}
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="w-64">
+                    <ScrollArea className="flex flex-col max-h-[190px]">
+                      {coaches.map((coach, index) => {
+                        const name =
+                          coach.split(" ")[0] +
+                          " " +
+                          coach.split(" ")[1].slice(0, 1);
+                        return (
+                          <SelectItem
+                            key={index}
+                            value={coach}
+                            className="cursor-pointer"
+                          >
+                            {coach}
+                          </SelectItem>
+                        );
+                      })}{" "}
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
+              </div>{" "}
+              <hr className="border-neutral-200" />
+              {/* time */}
+              <div className=" flex flex-col gap-2">
+                <p className="px-4 text-xs font-medium flex items-center gap-2 text-orange-900">
+                  {/* <Clock size={16} /> */}
+                  Date and time
+                </p>
+                <div className="px-4 flex items-center justify-between gap-4">
+                  <div className="w-full">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"ghost"}
+                          className={cn(
+                            " justify-center w-full  text-center gap-2 font-normal text-neutral-800 border h-9 border-neutral-200 text-sm px-2   tracking-tight",
+                            !session.startTime && "text-muted-foreground"
+                          )}
                         >
-                          {name}.
-                        </SelectItem>
-                      );
-                    })}{" "}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
-            </div>
-            {/* location */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm font-medium flex items-center gap-2">
-                Location
-              </p>
-
-              <Input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className=" !border-neutral-200 !ring-0 outline-none"
-                placeholder="Add location"
-              />
-            </div>
-            {/* activity */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm font-medium flex items-center gap-2">
-                Activity
-              </p>
-
-              <Select
-                value={activityName}
-                onValueChange={(value) => setActivityName(activityName)}
-              >
-                <SelectTrigger className="w-full  placeholder:text-neutral-700">
-                  <SelectValue className="text-neutral-400" />
-                </SelectTrigger>
-                <SelectContent className="w-44">
-                  <SelectItem value="chess">Chess</SelectItem>
-                  <SelectItem value="scrabble">Scrabble</SelectItem>
-                  <SelectItem value="coding">Coding</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {/* group type */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm  flex items-center gap-2">Group type</p>
-
-              <Select
-                value={groupType}
-                onValueChange={(value) => setGroupType(groupType)}
-              >
-                <SelectTrigger className="w-full  placeholder:text-neutral-700">
-                  <SelectValue
-                    className="text-neutral-400"
-                    placeholder="Group type"
+                          <CalendarDays size={16} />
+                          {date ? (
+                            format(date, "dd MMMM yyyy")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          defaultMonth={date}
+                          classNames={{
+                            day_selected: "bg-blue-200 hover:!bg-blue-200",
+                          }}
+                          onSelect={handleDateSelect}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="flex  items-center gap-2 h-10 rounded-lg">
+                    <Input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="max-w-fit px-2 hover:bg-neutral-100  shadow-none border-neutral-200 !outline-none !ring-0"
+                    />
+                    <ArrowRight size={14} />
+                    <Input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="max-w-fit px-2 hover:bg-neutral-100  shadow-none border-neutral-200 !outline-none !ring-0"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="px-4 flex  gap-4 w-full">
+                <div className="flex w-2/4 items-center space-x-2">
+                  <Switch
+                    checked={isAllDay}
+                    onCheckedChange={setIsAllDay}
+                    id="all-day"
                   />
-                </SelectTrigger>
-                <SelectContent className="w-44">
-                  <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="group">Group</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {/* Session type */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm  flex items-center gap-2">Session type</p>
+                  <Label htmlFor="all-day" className="font-normal">
+                    Session runs all day
+                  </Label>
+                </div>
+                <div className="w-2/4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="w-full">
+                      <div className="w-full border rounded text-sm font-medium hover:bg-neutral-100 text-neutral-700 border-transparent hover:border-neutral-200 h-10 px-2 flex items-center justify-between group/btn">
+                        <div className="flex items-center gap-2">
+                          <Repeat size={14} />
+                          <span>Repeat</span>
+                        </div>
+                        <ChevronDown
+                          size={14}
+                          className="opacity-0 group-hover/btn:opacity-100 transition-all"
+                        />
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      side="left"
+                      align="start"
+                      className="w-[250px] rounded-md text-sm"
+                    >
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black">
+                        Every day
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black">
+                        Every weekday
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
+                        <span>Every week</span>
+                        <span className="text-neutral-400 font-medium">
+                          on sat
+                        </span>
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
+                        <span>Every 2 weeks</span>
+                        <span className="text-neutral-400 font-medium">
+                          on sat
+                        </span>
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
+                        <span>Every month</span>
+                        <span className="text-neutral-400 font-medium">
+                          on the 20th
+                        </span>
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black flex items-center gap-2">
+                        <span>Every month</span>
+                        <span className="text-neutral-400 font-medium">
+                          on the last sat
+                        </span>
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuSeparator className="bg-neutral-200" />
+                      <DropdownMenuCheckboxItem className="hover:bg-neutral-200/80 cursor-pointer text-neutral-700 hover:text-black">
+                        Custom...
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+              <hr className="border-neutral-200" />
+              <div className="flex flex-col px-4 gap-2">
+                <Label
+                  htmlFor="session-type"
+                  className=" text-xs font-medium flex items-center gap-2 text-orange-900"
+                >
+                  Session type
+                </Label>
+                <Select
+                  name="session-type"
+                  value={sessionType}
+                  onValueChange={(value) =>
+                    setSessionType(value as "physical" | "online")
+                  }
+                >
+                  <SelectTrigger className="w-full  placeholder:text-neutral-700">
+                    <SelectValue
+                      className="text-neutral-400"
+                      placeholder="Group type"
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="w-44">
+                    <SelectItem value="online">Online</SelectItem>
+                    <SelectItem value="physical">Physical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {sessionType === "physical" ? (
+                <div className="flex flex-col px-4 gap-2">
+                  <p className="text-xs font-medium flex items-center gap-2 text-orange-900">
+                    Location
+                  </p>
 
-              <Select
-                value={sessionType}
-                onValueChange={(value) => setSessionType(sessionType)}
-              >
-                <SelectTrigger className="w-full  placeholder:text-neutral-700">
-                  <SelectValue
-                    className="text-neutral-400"
-                    placeholder="Group type"
+                  <Input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className=" !border-neutral-200 !ring-0 outline-none"
+                    placeholder="Add location"
                   />
-                </SelectTrigger>
-                <SelectContent className="w-44">
-                  <SelectItem value="online">Online</SelectItem>
-                  <SelectItem value="physical">Physical</SelectItem>
-                </SelectContent>
-              </Select>
+                </div>
+              ) : (
+                <div className="flex flex-col px-4 gap-2">
+                  <p className="text-xs font-medium flex items-center gap-2 text-orange-900">
+                    Meeting link
+                  </p>
+                  <Input
+                    type="url"
+                    className=""
+                    value={link}
+                    onChange={(e) => setLink(e.target.value)}
+                    placeholder="Add meeting link"
+                  />
+                </div>
+              )}
+              <hr className="border-neutral-200" />
+              {/* group type */}
+              <div className="flex flex-col px-4 gap-2">
+                <Label
+                  htmlFor="group-type"
+                  className=" text-xs font-medium flex items-center gap-2 text-orange-900"
+                >
+                  Group type
+                </Label>
+                <Select
+                  name="group-type"
+                  value={groupType}
+                  onValueChange={(value) => setGroupType(groupType)}
+                >
+                  <SelectTrigger className="w-full  placeholder:text-neutral-700">
+                    <SelectValue
+                      className="text-neutral-400"
+                      placeholder="Group type"
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="w-44">
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="group">Group</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="px-4  flex flex-col gap-3">
+                <Label
+                  htmlFor="participants"
+                  className=" text-xs font-medium flex items-center gap-2 text-orange-900"
+                >
+                  Participants
+                </Label>
+                <Input
+                  name="title"
+                  type="number"
+                  className=""
+                  value={participants}
+                  onChange={(e) => setParticipants(Number(e.target.value))}
+                />
+              </div>
             </div>
-            {/* link */}
-            <div className="flex flex-col px-4 gap-2">
-              <p className="text-sm font-medium flex items-center gap-2">
-                Meeting link
-              </p>
-              <Input
-                type="url"
-                className=""
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                placeholder="Add meeting link"
-              />
-            </div>
-          </div>
+          </ScrollArea>
+          <SheetFooter className="p-2 h-12 pt-0 shrink-0 py-0 flex items-center">
+            <SheetClose className="!min-w-fit w-36">
+              <Button
+                variant={"outline"}
+                className="w-full  px-4  rounded-md  font-medium text-sm"
+              >
+                cancel
+              </Button>
+            </SheetClose>
+            <Button
+              onClick={() => {
+                updateSession(updatedSession);
+                toggleEditSheet();
+              }}
+              className=" bg-blue-500 px-4  rounded-md hover:bg-blue-600 text-white font-medium text-sm"
+            >
+              save changes
+            </Button>
+          </SheetFooter>
         </div>
       </SheetContent>
     </Sheet>

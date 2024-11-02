@@ -284,7 +284,7 @@ const CurrentDatePicker = ({
           <Button
             variant={"outline"}
             className={cn(
-              " justify-center  text-center font-semibold w-48 text-xl tracking-tight",
+              " justify-center h-9 text-center font-semibold w-48 text-xl tracking-tight",
               !date && "text-muted-foreground"
             )}
           >
@@ -311,7 +311,7 @@ const CurrentDatePicker = ({
             onClick={prevDuration}
             size={"icon"}
             variant={"outline"}
-            className="h-8 w-8"
+            className="h-9 w-8"
           >
             <ChevronLeft size={16} strokeWidth={3} />
           </Button>
@@ -321,7 +321,7 @@ const CurrentDatePicker = ({
             onClick={nextDuration}
             size={"icon"}
             variant={"outline"}
-            className="h-8 w-8"
+            className="h-9 w-8"
           >
             <ChevronRight size={16} strokeWidth={3} />
           </Button>
@@ -393,7 +393,7 @@ const FilterBox = ({
         <Button
           variant={"outline"}
           size={"sm"}
-          className="text-sm border-dashed border-neutral-200 flex items-center gap-2"
+          className="text-sm rounded h-9 border-dashed border-neutral-300 flex items-center gap-2"
         >
           <span className="capitalize flex items-center gap-2">
             {filterIcon}
@@ -407,13 +407,13 @@ const FilterBox = ({
                   activeFilters.map((fil, index) => (
                     <span
                       key={index}
-                      className="p-0.5 bg-neutral-100 text-sm font-normal rounded-lg px-2"
+                      className="p-0.5 bg-neutral-100 text-sm font-normal rounded px-2"
                     >
                       {fil}
                     </span>
                   ))
                 ) : (
-                  <span className="p-0.5 px-2 rounded-lg text-blue-500 bg-neutral-100">
+                  <span className="p-0.5 px-2 rounded text-blue-500 bg-neutral-100">
                     {activeFilters.length} selected
                   </span>
                 )}

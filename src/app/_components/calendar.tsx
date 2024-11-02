@@ -19,8 +19,9 @@ import { TView } from "./types";
 import { cn } from "@/lib/utils";
 import { date } from "zod";
 import SessionCard from "./session-card";
-import { sessions } from "@/app/utils/dummy-data";
+import { TSessionType, sessions } from "@/app/utils/dummy-data";
 import CurrentTimeIndicator from "./current-time-indicator";
+import { useState } from "react";
 
 const DAY_IN_MINUTES = 24 * 60;
 
@@ -42,7 +43,16 @@ const hoursOfDay = (clockSys: "12h" | "24h") =>
         : String(i + ":00").padStart(2),
   }));
 
-const MonthView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
+const MonthView = ({
+  selectedView,
+  days,
+  sessionsState,
+  updateSession,
+  currentDate,
+}: TCalendarCompProps & {
+  sessionsState: TSessionType[];
+  updateSession: (val: TSessionType) => void;
+}) => {
   return (
     <div>
       <div className="w-full text-neutral-500 text-xs grid grid-cols-7">
@@ -89,10 +99,15 @@ const MonthView = ({ selectedView, days, currentDate }: TCalendarCompProps) => {
                 </time>
               </div>
               <div className="w-full flex flex-col gap-1">
-                {sessions.map((session, index, array) => {
+                {sessionsState.map((session, index, array) => {
                   return (
                     isSameDay(parseISO(session.startTime), day) && (
-                      <SessionCard session={session} type="month" key={index} />
+                      <SessionCard
+                        updateSession={updateSession}
+                        session={session}
+                        type="month"
+                        key={index}
+                      />
                     )
                   );
                 })}
@@ -110,7 +125,12 @@ const WeekView = ({
   selectedView,
   days,
   currentDate,
-}: TCalendarCompProps) => {
+  sessionsState,
+  updateSession,
+}: TCalendarCompProps & {
+  sessionsState: TSessionType[];
+  updateSession: (val: TSessionType) => void;
+}) => {
   const daysOfWeek = eachDayOfInterval({
     start: startOfWeek(currentDate as Date),
     end: endOfWeek(currentDate as Date),
@@ -169,7 +189,7 @@ const WeekView = ({
                 )}
               >
                 {/* Render session cards */}
-                {sessions
+                {sessionsState
                   .filter((session) =>
                     isSameDay(parseISO(session.startTime), day)
                   )
@@ -177,7 +197,7 @@ const WeekView = ({
                     const start = parseISO(session.startTime);
                     let end = parseISO(session.endTime);
 
-                    const midnight = startOfDay(addDays(day, 1)); 
+                    const midnight = startOfDay(addDays(day, 1));
                     if (isAfter(end, midnight)) {
                       end = midnight;
                     }
@@ -196,7 +216,11 @@ const WeekView = ({
                           height: `${(totalMinutes / DAY_IN_MINUTES) * 100}%`,
                         }}
                       >
-                        <SessionCard session={session} type="week" />
+                        <SessionCard
+                          updateSession={updateSession}
+                          session={session}
+                          type="week"
+                        />
                       </div>
                     );
                   })}
@@ -219,11 +243,12 @@ const DayView = ({
   selectedView,
   days,
   currentDate,
-}: TCalendarCompProps) => {
-  const daysOfWeek = eachDayOfInterval({
-    start: startOfWeek(currentDate as Date),
-    end: endOfWeek(currentDate as Date),
-  });
+  sessionsState,
+  updateSession,
+}: TCalendarCompProps & {
+  sessionsState: TSessionType[];
+  updateSession: (val: TSessionType) => void;
+}) => {
   return (
     <div className="flex items-start h-full">
       <div className="h-full w-20 shrink-0 border-r">
@@ -263,13 +288,18 @@ const DayView = ({
         <div className="relative w-full grid   divide-y divide-neutral-200/50">
           {/* Render session cards */}
           <CurrentTimeIndicator clockSys={clockSys} />
-          {sessions
+          {sessionsState
             .filter((session) =>
               isSameDay(parseISO(session.startTime), currentDate as Date)
             )
             .map((session) => {
               const start = parseISO(session.startTime);
-              const end = parseISO(session.endTime);
+              let end = parseISO(session.endTime);
+              const midnight = startOfDay(addDays(currentDate as Date, 1));
+
+              if (isAfter(end, midnight)) {
+                end = midnight;
+              }
 
               const totalMinutes = differenceInMinutes(end, start);
               const topPosition =
@@ -284,7 +314,11 @@ const DayView = ({
                     height: `${(totalMinutes / DAY_IN_MINUTES) * 100}%`,
                   }}
                 >
-                  <SessionCard session={session} type="week" />
+                  <SessionCard
+                    updateSession={updateSession}
+                    session={session}
+                    type="week"
+                  />
                 </div>
               );
             })}
@@ -305,6 +339,18 @@ const CalendarComp = ({
   currentDate,
   clockSys,
 }: TCalendarCompProps) => {
+  const [sessionsState, setSessions] = useState(sessions);
+
+  const updateSession = (updatedSession: TSessionType) => {
+    console.log(updatedSession)
+    setSessions((prevSessions) =>
+      prevSessions.map((session) =>
+        session.id === updatedSession.id
+          ? { ...session, ...updatedSession }
+          : session
+      )
+    );
+  };
   return (
     <div className="w-full h-[90vh] overflow-y-scroll custom-sidebar  bg-white border border-neutral-200 rounded-md">
       {selectedView === "month" && (
@@ -313,6 +359,8 @@ const CalendarComp = ({
           days={days}
           currentDate={currentDate}
           clockSys={clockSys}
+          sessionsState={sessionsState}
+          updateSession={updateSession}
         />
       )}
       {selectedView === "week" && (
@@ -321,6 +369,8 @@ const CalendarComp = ({
           days={days}
           currentDate={currentDate}
           clockSys={clockSys}
+          sessionsState={sessionsState}
+          updateSession={updateSession}
         />
       )}{" "}
       {selectedView === "day" && (
@@ -329,6 +379,8 @@ const CalendarComp = ({
           days={days}
           currentDate={currentDate}
           clockSys={clockSys}
+          sessionsState={sessionsState}
+          updateSession={updateSession}
         />
       )}
     </div>
