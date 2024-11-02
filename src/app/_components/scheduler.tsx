@@ -39,6 +39,7 @@ import {
   Dices,
   User,
   View,
+  X,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -46,13 +47,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 
 // DATA
+type TFilter = "coaches" | "activities" | "status";
+
+const filtersList: TFilter[] = ["coaches", "activities", "status"];
 const coaches = ["John", "Adam", "Sarah", "Matt", "Emma", "Chris", "Michael"];
 const activities = ["Chess", "Scrabble", "Coding"];
 const statuses = ["Completed", "Pending", "Cancelled"];
 
-
 const clockSystems: TClockSys[] = ["12h", "24h"];
-
 export default function Scheduler() {
   const [selectedView, setSelectedView] = useState<TView>("week");
   const [clockSys, setClockSys] = useState<TClockSys>("12h");
@@ -136,6 +138,17 @@ export default function Scheduler() {
     }));
   };
 
+  const resetAll = () => {
+    filtersList.forEach((filter) => resetFilter(filter));
+  };
+
+  const filtersLength = (param: keyof typeof filters) => filters[param].length;
+
+  const hasFilters =
+    filtersLength("activities") > 0 ||
+    filtersLength("coaches") > 0 ||
+    filtersLength("status") > 0;
+
   return (
     <main className="flex flex-col gap-3  w-full">
       <nav className="w-full h-10 flex items-center justify-between">
@@ -190,6 +203,15 @@ export default function Scheduler() {
               }}
               filterOptions={statuses}
             />
+            {hasFilters && (
+              <Button
+                onClick={resetAll}
+                className="h-9 flex items-center gap-2"
+                variant={"ghost"}
+              >
+                Reset all <X size={14} />
+              </Button>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-4">
