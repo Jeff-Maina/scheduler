@@ -64,7 +64,7 @@ const MonthView = ({
         <div className="p-4 rounded-md w-full text-center">Fri</div>
         <div className="p-4 rounded-md w-full text-center">Sat</div>
       </div>
-      <div className="w-full grid grid-cols-7">
+      <div className="w-full grid grid-cols-7 border-b border-neutral-200/60">
         {days.map((day, index) => {
           return (
             <div
@@ -72,14 +72,15 @@ const MonthView = ({
               className={cn(
                 " w-full h-36 p-3 border-t border-r border-neutral-200/60 flex flex-col items-start justify-start gap-2",
                 index === 0 && colStartClasses[getDay(day)],
-                isSameDay(day, currentDate as Date) ? "animate-glow" : ""
+                isSameDay(day, currentDate as Date) ? "animate-glow" : "",
+                isSameMonth(currentDate as Date, day) || "striped"
               )}
             >
               <div
                 className={cn(
                   "flex w-full items-center justify-end gap-2",
                   isSameMonth(currentDate as Date, day)
-                    ? "text-neutral-700"
+                    ? "text-neutral-700 "
                     : "text-neutral-400"
                 )}
               >
