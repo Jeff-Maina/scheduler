@@ -74,8 +74,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TSessionType } from "../utils/dummy-data";
+import { TSessionType, coaches } from "../utils/dummy-data";
 import TooltipWrapper from "./tooltip-wrapper";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type TSessionCardPropsType = {
   session: TSessionType;
@@ -110,7 +111,7 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
   return (
     <>
       <div className="w-full h-full">
-        <SessionContextMenu>
+        <SessionContextMenu toggleEditSheet={toggleEditSheet}>
           <div
             onClick={toggleDetailsPopover}
             className={cn(
@@ -190,13 +191,20 @@ export default function SessionCard({ session, type }: TSessionCardPropsType) {
 
 type TContextMenuProps = {
   children: React.ReactNode;
+  toggleEditSheet: () => void
 };
 
-const SessionContextMenu = ({ children }: TContextMenuProps) => {
+const SessionContextMenu = ({ children,toggleEditSheet }: TContextMenuProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger className="">{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-44">
+        <ContextMenuItem onClick={toggleEditSheet} className="flex  items-center justify-between hover:bg-neutral-100 cursor-pointer ">
+          <div className="flex items-center gap-2">
+            <Pencil size={12} />
+            Edit
+          </div>
+        </ContextMenuItem>
         <ContextMenuItem className="flex  items-center justify-between hover:bg-neutral-100 cursor-pointer ">
           <div className="flex items-center gap-2">
             <Copy size={12} />
@@ -216,7 +224,7 @@ const SessionContextMenu = ({ children }: TContextMenuProps) => {
   );
 };
 
-type TSessionContextType = {
+type TSessionEditType = {
   isSheetOpen: boolean;
   toggleEditSheet: () => void;
   session: TSessionType;
@@ -226,17 +234,36 @@ const SessionEditSheet = ({
   isSheetOpen,
   toggleEditSheet,
   session,
-}: TSessionContextType) => {
+}: TSessionEditType) => {
   const [date, setDate] = useState<Date | undefined>(
     new Date(session.startTime)
   );
+
+  // Assuming you have a session object to initialize the state from
+  const [title, setTitle] = useState(session.title);
+  const [activityName, setActivityName] = useState(session.activityName);
+  const [instructorName, setInstructorName] = useState(session.instructorName);
+  const [startTime, setStartTime] = useState(
+    format(session.startTime, "HH:mm")
+  );
+  const [endTime, setEndTime] = useState(format(session.endTime, "HH:mm"));
+  const [location, setLocation] = useState(session.location || "");
+  const [sessionType, setSessionType] = useState(session.sessionType);
+  const [groupType, setGroupType] = useState(session.groupType);
+  const [participants, setParticipants] = useState(session.participants);
+  const [description, setDescription] = useState(session.description || "");
+  const [isAllDay, setIsAllDay] = useState(session.isAllDay);
+  const [link, setLink] = useState(session.link || "");
+  const [colorCode, setColorCode] = useState(session.colorCode || "");
+  const [notes, setNotes] = useState(session.notes || "");
+  const [recurrence, setRecurrence] = useState(session.recurrence);
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={toggleEditSheet}>
       <SheetContent className="min-w-[500px] bg-transparent p-3 border-none shadow-none !ring-none !outline-none">
         <div className="w-full h-full flex flex-col gap-2 bg-white rounded-md shadow-lg">
           <SheetHeader className="p-4">
-            <SheetTitle className=" text-base">Edit class</SheetTitle>
+            <SheetTitle className=" text-base">Edit session</SheetTitle>
             <SheetDescription className="sr-only">
               session details
             </SheetDescription>
@@ -246,11 +273,16 @@ const SessionEditSheet = ({
             <div className="px-4  flex flex-col gap-3">
               <Label
                 htmlFor="title"
-                className="text-xs text-neutral-700 font-medium flex items-center gap-2"
+                className=" text-sm font-medium flex items-center gap-2"
               >
                 Class title
               </Label>
-              <Input name="title" className="" value={session.title} />
+              <Input
+                name="title"
+                className=""
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
             </div>
             <hr className="border-neutral-200/60" />
             {/* time */}
@@ -295,11 +327,15 @@ const SessionEditSheet = ({
                 <div className="flex  items-center gap-2 h-10 rounded-lg">
                   <Input
                     type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
                     className="max-w-fit px-2 hover:bg-neutral-100  shadow-none border-neutral-200 !outline-none !ring-0"
                   />
                   <ArrowRight size={14} />
                   <Input
                     type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
                     className="max-w-fit px-2 hover:bg-neutral-100  shadow-none border-neutral-200 !outline-none !ring-0"
                   />
                 </div>
@@ -307,7 +343,11 @@ const SessionEditSheet = ({
             </div>
             <div className="px-4 flex  gap-4 w-full">
               <div className="flex w-2/4 items-center space-x-2">
-                <Switch id="all-day" />
+                <Switch
+                  checked={isAllDay}
+                  onCheckedChange={setIsAllDay}
+                  id="all-day"
+                />
                 <Label htmlFor="all-day" className="font-normal">
                   Session runs all day
                 </Label>
@@ -378,6 +418,8 @@ const SessionEditSheet = ({
                 Description
               </p>
               <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="   h-20 resize-none"
                 placeholder="Description"
               />
@@ -388,17 +430,34 @@ const SessionEditSheet = ({
                 Instructor
               </p>
 
-              <Select>
+              <Select
+                value={instructorName}
+                onValueChange={(value) => setInstructorName(value)}
+              >
                 <SelectTrigger className="w-full placeholder:text-neutral-700">
                   <SelectValue
                     className="text-neutral-400"
-                    placeholder="Instructor"
+                    aria-label={instructorName}
                   />
                 </SelectTrigger>
-                <SelectContent className="w-44">
-                  <SelectItem value="Jeff">Jeff Gichuki</SelectItem>
-                  <SelectItem value="Joan">Joan Watiri</SelectItem>
-                  <SelectItem value="coding">Marcus Rashford</SelectItem>
+                <SelectContent className="w-64">
+                  <ScrollArea className="flex flex-col max-h-[190px]">
+                    {coaches.map((coach, index) => {
+                      const name =
+                        coach.split(" ")[0] +
+                        " " +
+                        coach.split(" ")[1].slice(0, 1);
+                      return (
+                        <SelectItem
+                          key={index}
+                          value={coach}
+                          className="cursor-pointer"
+                        >
+                          {name}.
+                        </SelectItem>
+                      );
+                    })}{" "}
+                  </ScrollArea>
                 </SelectContent>
               </Select>
             </div>
@@ -410,6 +469,8 @@ const SessionEditSheet = ({
 
               <Input
                 type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className=" !border-neutral-200 !ring-0 outline-none"
                 placeholder="Add location"
               />
@@ -420,12 +481,12 @@ const SessionEditSheet = ({
                 Activity
               </p>
 
-              <Select>
+              <Select
+                value={activityName}
+                onValueChange={(value) => setActivityName(activityName)}
+              >
                 <SelectTrigger className="w-full  placeholder:text-neutral-700">
-                  <SelectValue
-                    className="text-neutral-400"
-                    placeholder="Activity"
-                  />
+                  <SelectValue className="text-neutral-400" />
                 </SelectTrigger>
                 <SelectContent className="w-44">
                   <SelectItem value="chess">Chess</SelectItem>
@@ -438,7 +499,10 @@ const SessionEditSheet = ({
             <div className="flex flex-col px-4 gap-2">
               <p className="text-sm  flex items-center gap-2">Group type</p>
 
-              <Select>
+              <Select
+                value={groupType}
+                onValueChange={(value) => setGroupType(groupType)}
+              >
                 <SelectTrigger className="w-full  placeholder:text-neutral-700">
                   <SelectValue
                     className="text-neutral-400"
@@ -446,19 +510,43 @@ const SessionEditSheet = ({
                   />
                 </SelectTrigger>
                 <SelectContent className="w-44">
-                  <SelectItem value="Individual">Individual</SelectItem>
-                  <SelectItem value="Group">Group</SelectItem>
+                  <SelectItem value="individual">Individual</SelectItem>
+                  <SelectItem value="group">Group</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Session type */}
+            <div className="flex flex-col px-4 gap-2">
+              <p className="text-sm  flex items-center gap-2">Session type</p>
+
+              <Select
+                value={sessionType}
+                onValueChange={(value) => setSessionType(sessionType)}
+              >
+                <SelectTrigger className="w-full  placeholder:text-neutral-700">
+                  <SelectValue
+                    className="text-neutral-400"
+                    placeholder="Group type"
+                  />
+                </SelectTrigger>
+                <SelectContent className="w-44">
+                  <SelectItem value="online">Online</SelectItem>
+                  <SelectItem value="physical">Physical</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             {/* link */}
             <div className="flex flex-col px-4 gap-2">
-              <small className="text-neutral-700  flex items-center gap-2">
-                {/* <MapPin size={16} /> */}
-                Link
-              </small>
-
-              <Input type="url" className="" placeholder="Add location" />
+              <p className="text-sm font-medium flex items-center gap-2">
+                Meeting link
+              </p>
+              <Input
+                type="url"
+                className=""
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="Add meeting link"
+              />
             </div>
           </div>
         </div>

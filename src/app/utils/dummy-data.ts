@@ -131,7 +131,7 @@ export const sessions: TSessionType[] = [
     link: "https://teams.microsoft.com/l/meetup-join/123",
     description: "Learn JavaScript basics.",
     isAllDay: false,
-    
+
     colorCode: "200, 60%, 40%", // A calm cyan
     recurrence: {
       frequency: "monthly",
@@ -199,4 +199,7 @@ export const sessions: TSessionType[] = [
     colorCode: "340, 50%, 50%", // A rich magenta
   },
 ];
+
+export const coaches: string[] = Array.from(new Set(sessions.map((session) => session.instructorName)));
+
 export type { TSessionType };
