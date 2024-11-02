@@ -198,6 +198,51 @@ export const sessions: TSessionType[] = [
     isAllDay: false,
     colorCode: "340, 50%, 50%", // A rich magenta
   },
+  {
+    id: "11",
+    title: "Chess Strategy Workshop",
+    activityName: "chess",
+    instructorName: "John Doe",
+    startTime: "2024-10-25T03:00:00Z",
+    endTime: "2024-10-25T20:20:00Z",
+    location: "Room 101",
+    sessionType: "physical",
+    groupType: "group",
+    participants: 8,
+    description: "Intermediate chess strategies.",
+    isAllDay: false,
+    colorCode: "210, 50%, 40%", // A soft blue
+  },
+  {
+    id: "12",
+    title: "Chess Strategy Workshop",
+    activityName: "chess",
+    instructorName: "John Doe",
+    startTime: "2024-10-25T03:00:00Z",
+    endTime: "2024-10-25T20:20:00Z",
+    location: "Room 101",
+    sessionType: "physical",
+    groupType: "group",
+    participants: 8,
+    description: "Intermediate chess strategies.",
+    isAllDay: false,
+    colorCode: "210, 50%, 40%", // A soft blue
+  },
+  {
+    id: "13",
+    title: "Chess Strategy Workshop",
+    activityName: "chess",
+    instructorName: "John Doe",
+    startTime: "2024-10-25T03:00:00Z",
+    endTime: "2024-10-25T20:20:00Z",
+    location: "Room 101",
+    sessionType: "physical",
+    groupType: "group",
+    participants: 8,
+    description: "Intermediate chess strategies.",
+    isAllDay: false,
+    colorCode: "210, 50%, 40%", // A soft blue
+  },
 ];
 
 export const coaches: string[] = Array.from(new Set(sessions.map((session) => session.instructorName)));

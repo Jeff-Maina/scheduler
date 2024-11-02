@@ -22,6 +22,7 @@ import SessionCard from "./session-card";
 import { TSessionType, sessions } from "@/app/utils/dummy-data";
 import CurrentTimeIndicator from "./current-time-indicator";
 import { useState } from "react";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 const DAY_IN_MINUTES = 24 * 60;
 
@@ -66,6 +67,9 @@ const MonthView = ({
       </div>
       <div className="w-full grid grid-cols-7 border-b border-neutral-200/60">
         {days.map((day, index) => {
+          const noOfSessions = sessionsState.filter((session) =>
+          isSameDay(parseISO(session.startTime), day)
+        ).length
           return (
             <div
               key={index}
@@ -78,7 +82,7 @@ const MonthView = ({
             >
               <div
                 className={cn(
-                  "flex w-full items-center justify-end gap-2",
+                  "flex w-full shrink-0 items-center justify-end gap-2",
                   isSameMonth(currentDate as Date, day)
                     ? "text-neutral-700 "
                     : "text-neutral-400"
@@ -99,19 +103,27 @@ const MonthView = ({
                   {format(day, "d")}
                 </time>
               </div>
-              <div className="w-full flex flex-col gap-1">
-                {sessionsState.map((session, index, array) => {
-                  return (
-                    isSameDay(parseISO(session.startTime), day) && (
-                      <SessionCard
-                        updateSession={updateSession}
-                        session={session}
-                        type="month"
-                        key={index}
-                      />
-                    )
-                  );
-                })}
+              <div className="w-full flex flex-col gap-1 relative z-20 h-[100px]">
+                <div className="flex flex-col custom-scrollbar gap-1 max-h-[80px]  overflow-y-auto pr-1.5">
+                  {sessionsState.map((session, index, array) => {
+                    return (
+                      isSameDay(parseISO(session.startTime), day) && (
+                        <SessionCard
+                          updateSession={updateSession}
+                          session={session}
+                          type="month"
+                          key={index}
+                        />
+                      )
+                    );
+                  })}
+                </div>
+
+                {noOfSessions > 2 && (
+                  <small className="text-xs font-medium text-neutral-600 py-0.5 bg-neutral-50 border-neutral-200 border rounded-md max-w-fit px-2 ">
+                    {noOfSessions} sessions
+                  </small>
+                )}
               </div>
             </div>
           );
@@ -343,7 +355,7 @@ const CalendarComp = ({
   const [sessionsState, setSessions] = useState(sessions);
 
   const updateSession = (updatedSession: TSessionType) => {
-    console.log(updatedSession)
+    console.log(updatedSession);
     setSessions((prevSessions) =>
       prevSessions.map((session) =>
         session.id === updatedSession.id
@@ -353,7 +365,7 @@ const CalendarComp = ({
     );
   };
   return (
-    <div className="w-full h-[90vh] overflow-y-scroll custom-sidebar  bg-white border border-neutral-200 rounded-md">
+    <div className="w-full h-[90vh] overflow-y-scroll custom-scrollbar  bg-white border border-neutral-200 rounded-md">
       {selectedView === "month" && (
         <MonthView
           selectedView={selectedView}

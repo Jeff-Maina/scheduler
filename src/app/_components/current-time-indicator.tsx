@@ -21,7 +21,7 @@ const CurrentTimeIndicator = ({ clockSys }: { clockSys: TClockSys }) => {
       style={{
         top: `${indicatorTop * 100}%`,
       }}
-      className="absolute w-full h-2 -translate-y-1 flex items-center z-20 top-2/4"
+      className="absolute pointer-events-none w-full h-2 -translate-y-1 flex items-center z-20 top-2/4"
     >
       <time className="text-[10px] bg-white font-semibold absolute leading-none -translate-x-[110%]">
         {clockSys === '12h' ? format(currentTime, "hh:mm a") : format(currentTime, "kk:mm")}

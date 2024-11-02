@@ -122,9 +122,10 @@ export default function SessionCard({
           <div
             onClick={toggleDetailsPopover}
             className={cn(
-              "flex w-full h-full min-h-10 items-center cursor-pointer gap-1 pr-3  opacity-80 hover:opacity-100 rounded",
+              "flex w-full h-full min-h-9 items-center cursor-pointer gap-1 pr-3  opacity-80 hover:opacity-100 rounded",
               type === "week" && "items-start p-2 gap-2 opacity-100",
-              isPopoverOpen && "shadow-lg"
+              isPopoverOpen && "shadow-lg",
+              type === "month" && "h-9"
             )}
             style={{
               color: `hsl(${session.colorCode})`,
@@ -139,7 +140,7 @@ export default function SessionCard({
             />
             {type === "month" && (
               <p className="text-xs font-semibold line-clamp-1">
-                <span className="opacity-60 text-[10px] mr-1">
+                <span className="opacity-60 text-[10px] mx-1">
                   {format(parseISO(session.startTime), "h:mm a ")}
                 </span>{" "}
                 {session.title}
